@@ -11,29 +11,25 @@ import time
 import argparse
 
 
-source = {
-    "path": "/home/jeff/Videos",
-    "file": "People-Walking-Shot-From-Above.mp4",
+defaults = {
+    "path": "/home/pi/Videos",
+    "file_in": "People-Walking-Shot-From-Above.mp4",
+    "file_out": "output.mp4",
     "device": "/dev/video0",
     "device_no": 0
 }
 
-sink = {
-    "path": "/home/jeff/Videos",
-    "file": "output.mp4",
-    "device": ""
-}
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-d", "--video_device", required=False,
-                default=source["device_no"],
+                default=defaults["device_no"],
                 help="device number for input video")
-ap.add_argument("-f", "--video_file_in", required=False,
-                default=source["path"] + '/' + source["file"],
+ap.add_argument("-i", "--video_file_in", required=False,
+                default=defaults["path"] + '/' + defaults["file_in"],
                 help="path to input video file")
 ap.add_argument("-o", "--video_file_out", required=False,
-                default=sink["path"] + '/' + sink["file"],
+                default=defaults["path"] + '/' + defaults["file_out"],
                 help="path to output video file")
 ap.add_argument("-p", "--picamera", required=False, type=int, default=-1,
                 help="whether or not the Raspberry Pi camera should be used")
@@ -252,7 +248,7 @@ while(cap.isOpened()):
     video_output.write(frame)
 
     # pre-set ESC or 'q' to exit
-    k = cv2.waitKey(30) & 0xFF
+    k = cv2.waitKey(1) & 0xFF
     if k == 27 or k == ord('q'):
         break
 # END while(cap.isOpened())
