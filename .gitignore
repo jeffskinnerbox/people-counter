@@ -1,8 +1,5 @@
 ### ------------------------- Project Specific ------------------------- ###
 
-Untitled.ipynb
-*.backup
-
 ### Videos & Images ###
 *.mp4
 *.avi
@@ -12,6 +9,9 @@ Untitled.ipynb
 *.jpg
 *.tif
 *.gif
+
+### Jupyter files ###
+Untitled.ipynb
 
 ### ----------------------------- General ------------------------------ ###
 
@@ -33,6 +33,9 @@ Untitled.ipynb
 *.rar
 *.tar
 *.zip
+
+### backup file ###
+*.backup
 
 ### Unit test / coverage reports
 htmlcov/
