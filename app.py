@@ -4,19 +4,26 @@
 # Version:      0.1.0
 
 import cv2
+import time
 import numpy
 import myperson
-import tracemess
-import time
 import argparse
+import tracemess
 
 
+# default parameters when stating the algorithm
 defaults = {
     "path": "/home/pi/Videos",
     "file_in": "People-Walking-Shot-From-Above.mp4",
     "file_out": "output.mp4",
     "device": "/dev/video0",
     "device_no": 0
+}
+
+# initial conditions when stating the algorithm
+initials = {
+    "cnt_up": 0,
+    "cnt_down": 0
 }
 
 
@@ -36,9 +43,9 @@ ap.add_argument("-p", "--picamera", required=False, type=int, default=-1,
 args = vars(ap.parse_args())
 
 
-# Input and Output Counters
-cnt_up = 0
-cnt_down = 0
+# Set Input and Output Counters
+cnt_up = initials["cnt_up"]
+cnt_down = initials["cnt_down"]
 
 # Video Source
 # cap = cv2.VideoCapture(0)
