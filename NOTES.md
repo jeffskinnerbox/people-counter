@@ -182,8 +182,6 @@ these files will not be affected.
 
 
 
-
-
 [01]:http://git-scm.com/
 [02]:https://github.com/
 [03]:http://blog.smalleycreative.com/tutorials/using-git-and-github-to-manage-your-dotfiles/
