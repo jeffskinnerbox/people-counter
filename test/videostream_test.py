@@ -1,10 +1,13 @@
 #!/usr/bin/python3
 #
+# Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
+# Version:      0.1.0
+#
 # USAGE
 #   To run the /dev/video camera  -  python3 videostream_demo.py
 #   To run the Raspberry Pi camera  -  python3 videostream_demo.py -p
 # SOURCE
-#   Unifying picamera and cv2.VideoCapture into a single class with OpenCV
+#   "Unifying picamera and cv2.VideoCapture into a single class with OpenCV"
 #   https://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/
 
 
