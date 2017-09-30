@@ -4,29 +4,32 @@
 # Version:      0.1.0
 
 
-# default parameters when stating the algorithm
-defaults = {
-    "path": "/home/jeff/Videos",                        # path to where videos are stored                           #noqa
-    "file_in": "People-Walking-Shot-From-Above.mp4",  # input video to be processed                               #noqa
-    "file_out": "output.mp4",                         # output video after processing                             #noqa
-    "file_rec": "recording.mp4",                      # unprocess camera recording                                #noqa
-    "device": "/dev/video0",
-    "device_no": 0
-}
-
-# initial conditions when stating the algorithm
-initials = {
-    "cnt_up": 0,
-    "cnt_down": 0
-}
-
-
+import os
 import cv2
 import time
 import numpy
 import myperson
 import argparse
 import tracemess
+
+
+# default parameters when stating the algorithm
+defaults = {
+    "path": "/home/pi/Videos",                        # path to where videos are stored                           #noqa
+    "file_in": "People-Walking-Shot-From-Above.mp4",  # input video to be processed                               #noqa
+    "file_out": "output.mp4",                         # output video after processing                             #noqa
+    "file_rec": "recording.mp4",                      # unprocess camera recording                                #noqa
+    "device": "/dev/video0",
+    "device_no": 0
+}
+if os.uname()[1] == "desktop":
+    defaults["path"] = "/home/jeff/Videos"
+
+# initial conditions when stating the algorithm
+initials = {
+    "cnt_up": 0,
+    "cnt_down": 0
+}
 
 
 # construct the argument parse and parse the arguments
