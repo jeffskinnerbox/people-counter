@@ -47,36 +47,18 @@ ap.add_argument("-o", "--video_file_out",
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_out"])
 ap.add_argument("-r", "--camera_recording",
-                help="path to file where the unprocessed camera video will be recorded",
+                help="path to file where the unprocessed camera video will be recorded",                         #noqa
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_rec"])
 ap.add_argument("-p", "--picamera",
-                help="set if you want the Raspberry Pi camera used",
-                required=False, type=int,
-                default=-1)
+                help="include if the Raspberry Pi Camera should be used",
+                action='store_true')
 args = vars(ap.parse_args())
-
-# import camera driver
-#if args['picamera'] is True:
-#    from picamera.array import PiRGBArray
-#    from picamera import PiCamera
 
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
 cnt_down = initials["cnt_down"]
 
-# Video Source
-#if args["picamera"] is True:
-#    # initialize the camera and grab a reference to the raw camera capture
-#    camera = PiCamera()
-#    camera.resolution = (640, 480)
-#    camera.framerate = 30
-#    rawCapture = PiRGBArray(camera, size=(640, 480))
-#
-#    # allow the camera to warmup
-#    time.sleep(0.1)
-#else:
-    # cap = cv2.VideoCapture(0)
 cap = cv2.VideoCapture(args["video_file_in"])
 print(args["video_file_in"])
 
