@@ -1,26 +1,31 @@
+#!/usr/bin/python3
+#
 # USAGE
-# python videostream_demo.py
-# python videostream_demo.py --picamera
+#   To run the /dev/video camera  -  python3 videostream_demo.py
+#   To run the Raspberry Pi camera  -  python3 videostream_demo.py -p
+# SOURCE
+#   Unifying picamera and cv2.VideoCapture into a single class with OpenCV
+#   https://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/
+
 
 # import the necessary packages
 from imutils.video import VideoStream
 import datetime
 import argparse
 import imutils
-import time
 import cv2
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--picamera",
                 help="include if the Raspberry Pi Camera should be used",
-                type=int, default=-1)
+                action='store_true')
 args = vars(ap.parse_args())
 
 # initialize the video stream and allow the cammera sensor to warmup
-vs = VideoStream(usePiCamera=args["picamera"] > 0).start()
 print("Camera warming up ...")
-time.sleep(1)
+vs = VideoStream(usePiCamera=args["picamera"]).start()
 
 # loop over the frames from the video stream
 while True:
@@ -35,7 +40,7 @@ while True:
     cv2.putText(frame, ts, (10, frame.shape[0] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
-    # show the frame
+    # show the frame in a pop-up window
     cv2.imshow("Frame", frame)
 
     # if the `q` or esc key was pressed, break from the loop
@@ -44,6 +49,6 @@ while True:
         print("Camera stopped by user ...")
         break
 
-# do a bit of cleanup
+# cleanup by closing the window and stop video streaming
 cv2.destroyAllWindows()
 vs.stop()
