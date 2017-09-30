@@ -4,8 +4,8 @@
 # Version:      0.1.0
 #
 # USAGE
-#    python picamera_fps_demo.py
-#    python picamera_fps_demo.py -d  -  also display the video in a window
+#    python picamera_fps_test.py
+#    python picamera_fps_test.py -d  -  also display the video in a window
 #
 # SOURCE
 #    "Increasing Raspberry Pi FPS with Python and OpenCV"
@@ -81,7 +81,6 @@ print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
-stream.close()
 rawCapture.close()
 camera.close()
 

@@ -18,7 +18,9 @@ from imutils.video import WebcamVideoStream
 from imutils.video import FPS
 import argparse
 import imutils
+import time
 import cv2
+import sys
 
 
 # construct the argument parse and parse the arguments
@@ -31,12 +33,13 @@ ap.add_argument("-d", "--display",
                 action='store_true')
 args = vars(ap.parse_args())
 
-# ########################## 2nd Pass With Threading ###########################
+# ################################## 1st Pass ##################################
 
 # grab a pointer to the video stream and initialize the FPS counter
 print("1st Pass: Reading", args["num_frames"], "frames from web camera.")
 print("Web Camera warming up ...")
 stream = cv2.VideoCapture(0)
+time.sleep(2.0)
 fps = FPS().start()
 
 # loop over some frames
@@ -44,7 +47,11 @@ while fps._numFrames < args["num_frames"]:
     # grab the frame from the stream and resize it to have a maximum
     # width of 400 pixels
     (grabbed, frame) = stream.read()
-    frame = imutils.resize(frame, width=400)
+    if frame == None:
+        print("USB Web Camera has no frame ... exiting")
+        sys.exit()
+    else:
+        frame = imutils.resize(frame, width=400)
 
     # check to see if the frame should be displayed to our screen
     if args["display"]:
@@ -68,7 +75,7 @@ cv2.destroyAllWindows()
 
 
 
-# ################################## 2nd Pass ##################################
+# ########################## 2nd Pass With Threading ###########################
 
 # created a *threaded *video stream, allow the camera senor to warmup,
 # and start the FPS counter
@@ -82,7 +89,11 @@ while fps._numFrames < args["num_frames"]:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     frame = vs.read()
-    frame = imutils.resize(frame, width=400)
+    if frame == None:
+        print("USB Web Camera has no frame ... exiting")
+        sys.exit()
+    else:
+        frame = imutils.resize(frame, width=400)
 
     # check to see if the frame should be displayed to our screen
     if args["display"]:

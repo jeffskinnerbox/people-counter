@@ -4,8 +4,10 @@
 # Version:      0.1.0
 #
 # USAGE
-#   To run the /dev/video camera  -  python3 videostream_demo.py
-#   To run the Raspberry Pi camera  -  python3 videostream_demo.py -p
+#   To run the /dev/video camera  -  python3 videostream_test.py -s usb
+#   To run the Raspberry Pi camera  -  python3 videostream_test.py -s picamera
+#   To run using a file  -  python3 videostream_test.py -s file
+#
 # SOURCE
 #   Modification of "Unifying picamera and cv2.VideoCapture into a single class with OpenCV"
 #   https://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/
@@ -13,9 +15,11 @@
 
 # import the necessary packages
 from imutils.video import VideoStream
+from imutils.video import FPS
 import datetime
 import argparse
 import imutils
+import time
 import cv2
 
 
@@ -33,16 +37,20 @@ args = vars(ap.parse_args())
 
 # initialize the video stream and allow the cammera sensor to warmup
 if args["source"] == 'picamera':
-    print("Camera warming up ...")
     vs = VideoStream(usePiCamera=True).start()
-elif args["source"] == 'usb':
     print("Camera warming up ...")
+    time.sleep(2.0)
+elif args["source"] == 'usb':
     vs = VideoStream(usePiCamera=False).start()
+    print("Camera warming up ...")
+    time.sleep(2.0)
 elif args["source"] == 'file':
     vs = cv2.VideoCapture(args["file_input"])
 else:
     print("Improper parameter set in -f option ... Stopping")
     exit
+
+fps = FPS().start()
 
 # loop over the frames from the video stream or file
 while True:
@@ -66,10 +74,16 @@ while True:
     # show the frame in a pop-up window
     cv2.imshow("Frame", frame)
 
+    # update the frame count
+    fps.update()
+
     # if the `q` or esc key was pressed, break from the loop
     key = cv2.waitKey(1)
     if chr(key & 255) == 'q' or key == 27:
+        fps.stop()
         print("Camera stopped by user ...")
+        print("\telasped time: {:.2f}".format(fps.elapsed()))
+        print("\tapprox. FPS: {:.2f}".format(fps.fps()))
         break
 
 # cleanup by closing the window and stop video streaming

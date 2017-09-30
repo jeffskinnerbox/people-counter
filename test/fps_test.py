@@ -19,6 +19,8 @@ from imutils.video import FPS
 import argparse
 import imutils
 import cv2
+import sys
+import os
 
 
 # construct the argument parse and parse the arguments
@@ -55,19 +57,25 @@ if args["source"] == 'picamera':
     camera.resolution = (320, 240)
     camera.framerate = 32
     rawCapture = PiRGBArray(camera, size=(320, 240))
-    stream = camera.capture_continuous(rawCapture, format="bgr",
-                                       use_video_port=True)
-    # allow the camera to warmup and start the FPS counter
     print("Pi Camera warming up ...")
+#    stream = camera.capture_continuous(rawCapture, format="bgr",
+#                                       use_video_port=True)
+    # allow the camera to warmup and start the FPS counter
     fps = FPS().start()
 elif args["source"] == 'usb':
     # grab a pointer to the video stream and initialize the FPS counter
     print("1st Pass: Reading", args["num_frames"], "frames from web camera.")
     print("Web Camera warming up ...")
     stream = cv2.VideoCapture(0)
+    if stream == None:
+        print("USB Web Camera has no frame ... exiting")
+        sys.exit()
     fps = FPS().start()
 elif args["source"] == 'file':
     print("1st Pass: Reading", args["num_frames"], "frames from file.")
+    if not os.path.isfile(args["file_input"]):
+        print("Files doesn't exist ... exiting")
+        sys.exit()
     vs = cv2.VideoCapture(args["file_input"])
     fps = FPS().start()
 else:
@@ -78,8 +86,17 @@ else:
 while fps._numFrames < args["num_frames"]:
     # grab the frame from the stream and resize it to have a maximum
     # width of 400 pixels
-    if args["source"] == 'picamera' or args["source"] == 'usb':
+    if args["source"] == 'picamera':
+        f = camera.capture_continuous(rawCapture, format="bgr", use_video_port=True)
+        frame = f.array
+        if frame == None:
+            print("USB Web Camera has no frame ... exiting")
+            sys.exit()
+    if args["source"] == 'usb':
         (grabbed, frame) = stream.read()
+        if frame == None:
+            print("USB Web Camera has no frame ... exiting")
+            sys.exit()
     else:
         ret, frame = vs.read()
     frame = imutils.resize(frame, width=400)
@@ -140,7 +157,10 @@ elif args["source"] == 'usb':
     vs = WebcamVideoStream(src=0).start()
     fps = FPS().start()
 elif args["source"] == 'file':
-    print("1st Pass: Reading", args["num_frames"], "frames from file.")
+    print("\2nd Pass: Reading", args["num_frames"], "frames from file.")
+    if not os.path.isfile(args["file_input"]):
+        print("Files doesn't exist ... exiting")
+        sys.exit()
     vs = cv2.VideoCapture(args["file_input"])
     fps = FPS().start()
 else:
@@ -151,7 +171,12 @@ else:
 while fps._numFrames < args["num_frames"]:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
-    if args["source"] == 'picamera' or args["source"] == 'usb':
+    if args["source"] == 'picamera':
+        frame = vs.read()
+    if args["source"] == 'usb':
+        if frame == None:
+            print("USB Web Camera has no frame ... exiting")
+            sys.exit()
         frame = vs.read()
     else:
         ret, frame = vs.read()

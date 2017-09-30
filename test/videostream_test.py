@@ -4,8 +4,9 @@
 # Version:      0.1.0
 #
 # USAGE
-#   To run the /dev/video camera  -  python3 videostream_demo.py
-#   To run the Raspberry Pi camera  -  python3 videostream_demo.py -p
+#   To run the /dev/video camera  -  python3 videostream_test.py
+#   To run the Raspberry Pi camera  -  python3 videostream_test.py -p
+#
 # SOURCE
 #   "Unifying picamera and cv2.VideoCapture into a single class with OpenCV"
 #   https://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/
@@ -13,22 +14,27 @@
 
 # import the necessary packages
 from imutils.video import VideoStream
+from imutils.video import FPS
 import datetime
 import argparse
 import imutils
+import time
 import cv2
+import sys
 
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-p", "--picamera",
-                help="include if the Raspberry Pi Camera should be used",
+                help="the Raspberry Pi Camera should be used",
                 action='store_true')
 args = vars(ap.parse_args())
 
 # initialize the video stream and allow the cammera sensor to warmup
-print("Camera warming up ...")
 vs = VideoStream(usePiCamera=args["picamera"]).start()
+print("Camera warming up ...")
+time.sleep(2.0)
+fps = FPS().start()
 
 # loop over the frames from the video stream
 while True:
@@ -46,11 +52,19 @@ while True:
     # show the frame in a pop-up window
     cv2.imshow("Frame", frame)
 
+    # update the frame count
+    fps.update()
+
     # if the `q` or esc key was pressed, break from the loop
     key = cv2.waitKey(1)
     if chr(key & 255) == 'q' or key == 27:
         print("Camera stopped by user ...")
         break
+
+# stop the timer and display FPS information
+fps.stop()
+print("\telasped time: {:.2f}".format(fps.elapsed()))
+print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # cleanup by closing the window and stop video streaming
 cv2.destroyAllWindows()
