@@ -31,11 +31,11 @@ ap.add_argument("-d", "--display",
                 action='store_true')
 args = vars(ap.parse_args())
 
-# ################################## 1st Pass ##################################
+# ########################## 2nd Pass With Threading ###########################
 
 # grab a pointer to the video stream and initialize the FPS counter
-print("Web Camera warming up ...")
 print("1st Pass: Reading", args["num_frames"], "frames from web camera.")
+print("Web Camera warming up ...")
 stream = cv2.VideoCapture(0)
 fps = FPS().start()
 

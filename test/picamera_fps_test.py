@@ -45,8 +45,8 @@ stream = camera.capture_continuous(rawCapture,
                                    format="bgr", use_video_port=True)
 
 # allow the camera to warmup and start the FPS counter
-print("Pi Camera warming up ...")
 print("1st Pass: Reading", args["num_frames"], "frames from web camera.")
+print("Pi Camera warming up ...")
 time.sleep(2.0)
 fps = FPS().start()
 
@@ -87,7 +87,7 @@ camera.close()
 
 
 
-# ################################## 2nd Pass ##################################
+# ########################## 2nd Pass With Threading ###########################
 
 # created a *threaded *video stream, allow the camera sensor to warmup,
 # and start the FPS counter
