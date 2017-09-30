@@ -634,7 +634,7 @@ pip3 install --upgrade pip
 sudo pip3 install jupyter
 
 # install some of the commonly used python packages
-sudo pip3 install matplotlib seaborn pandas
+sudo pip3 install matplotlib seaborn pandas imutils
 sudo pip3 install scipy scikit-learn              # scikit-learn didn't build for some reason
 ```
 
