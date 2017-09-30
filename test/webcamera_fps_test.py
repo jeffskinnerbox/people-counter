@@ -6,6 +6,7 @@
 # USAGE
 #    python fps_demo.py
 #    python fps_demo.py -d  -  also display the video in a window
+#
 # SOURCE
 #    "Increasing Raspberry Pi FPS with Python and OpenCV"
 #    https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/
@@ -20,9 +21,6 @@ import imutils
 import cv2
 
 
-
-# ################################## 1st Pass ##################################
-
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--num-frames",
@@ -32,6 +30,8 @@ ap.add_argument("-d", "--display",
                 help="Whether or not frames should be displayed",
                 action='store_true')
 args = vars(ap.parse_args())
+
+# ################################## 1st Pass ##################################
 
 # grab a pointer to the video stream and initialize the FPS counter
 print("Web Camera warming up ...")

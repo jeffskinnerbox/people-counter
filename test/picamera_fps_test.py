@@ -6,6 +6,7 @@
 # USAGE
 #    python picamera_fps_demo.py
 #    python picamera_fps_demo.py -d  -  also display the video in a window
+#
 # SOURCE
 #    "Increasing Raspberry Pi FPS with Python and OpenCV"
 #    https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/# USAGE
@@ -23,9 +24,6 @@ import time
 import cv2
 
 
-
-# ################################## 1st Pass ##################################
-
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
 ap.add_argument("-n", "--num-frames",
@@ -35,6 +33,8 @@ ap.add_argument("-d", "--display",
                 help="Whether or not frames should be displayed",
                 action='store_true')
 args = vars(ap.parse_args())
+
+# ################################## 1st Pass ##################################
 
 # initialize the camera and stream
 camera = PiCamera()
