@@ -18,20 +18,40 @@ import cv2
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-p", "--picamera",
+ap.add_argument("-s", "--source",
                 help="include if the Raspberry Pi Camera should be used",
-                action='store_true')
+                required=True,
+                default='usb')      # values are: usb, picamera, file
+ap.add_argument("-f", "--file_input",
+                help="instead of a camera, use a file as your input stream",
+                required=False,
+                default="/home/jeff/Videos/People-Walking-Shot-From-Above.mp4")
 args = vars(ap.parse_args())
 
 # initialize the video stream and allow the cammera sensor to warmup
-print("Camera warming up ...")
-vs = VideoStream(usePiCamera=args["picamera"]).start()
+if args["source"] == 'picamera':
+    print("Camera warming up ...")
+    vs = VideoStream(usePiCamera=True).start()
+elif args["source"] == 'usb':
+    print("Camera warming up ...")
+    vs = VideoStream(usePiCamera=False).start()
+elif args["source"] == 'file':
+    vs = cv2.VideoCapture(args["file_input"])
+else:
+    print("Improper parameter set in -f option ... Stopping")
+    exit
 
-# loop over the frames from the video stream
+# loop over the frames from the video stream or file
 while True:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 600 pixels
-    frame = vs.read()
+    if args["source"] == 'picamera' or args["source"] == 'usb':
+        frame = vs.read()
+    else:
+        ret, frame = vs.read()
+    if frame is None:
+        print("Reached end of file or stream ...")
+        break
     frame = imutils.resize(frame, width=600)
 
     # draw the timestamp on the frame
@@ -51,4 +71,5 @@ while True:
 
 # cleanup by closing the window and stop video streaming
 cv2.destroyAllWindows()
-vs.stop()
+if args["source"] == 'picamera' or args["source"] == 'usb':
+    vs.stop()
