@@ -5,7 +5,7 @@
 #
 # USAGE
 #    python picamera_fps_demo.py
-#    python picamera_fps_demo.py -d 1   -  also display the video in a window
+#    python picamera_fps_demo.py -d  -  also display the video in a window
 # SOURCE
 #    "Increasing Raspberry Pi FPS with Python and OpenCV"
 #    https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/# USAGE
@@ -28,10 +28,12 @@ import cv2
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
-ap.add_argument("-n", "--num-frames", type=int, default=100,
-                help="# of frames to loop over for FPS test")
-ap.add_argument("-d", "--display", type=int, default=-1,
-                help="Whether or not frames should be displayed")
+ap.add_argument("-n", "--num-frames",
+                help="# of frames to loop over for FPS test",
+                type=int, default=100)
+ap.add_argument("-d", "--display",
+                help="Whether or not frames should be displayed",
+                action='store_true')
 args = vars(ap.parse_args())
 
 # initialize the camera and stream
@@ -56,7 +58,7 @@ for (i, f) in enumerate(stream):
     frame = imutils.resize(frame, width=400)
 
     # check to see if the frame should be displayed to our screen
-    if args["display"] > 0:
+    if args["display"]:
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
         if chr(key & 255) == 'q' or key == 27:
@@ -74,8 +76,8 @@ for (i, f) in enumerate(stream):
 
 # stop the timer and display FPS information
 fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+print("\telasped time: {:.2f}".format(fps.elapsed()))
+print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
@@ -89,7 +91,7 @@ camera.close()
 
 # created a *threaded *video stream, allow the camera sensor to warmup,
 # and start the FPS counter
-print("2nd Pass: Reading", args["num_frames"], "frames from web camera.")
+print("\n2nd Pass: Reading", args["num_frames"], "frames from web camera.")
 print("Using THREADED frames from Pi Camera...")
 vs = PiVideoStream().start()
 time.sleep(2.0)
@@ -103,7 +105,7 @@ while fps._numFrames < args["num_frames"]:
     frame = imutils.resize(frame, width=400)
 
     # check to see if the frame should be displayed to our screen
-    if args["display"] > 0:
+    if args["display"]:
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
         if chr(key & 255) == 'q' or key == 27:
@@ -115,8 +117,8 @@ while fps._numFrames < args["num_frames"]:
 
 # stop the timer and display FPS information
 fps.stop()
-print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))
+print("\telasped time: {:.2f}".format(fps.elapsed()))
+print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
 cv2.destroyAllWindows()
