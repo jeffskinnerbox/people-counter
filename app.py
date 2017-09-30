@@ -3,19 +3,13 @@
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
 # Version:      0.1.0
 
-import cv2
-import time
-import numpy
-import myperson
-import argparse
-import tracemess
-
 
 # default parameters when stating the algorithm
 defaults = {
-    "path": "/home/pi/Videos",
-    "file_in": "People-Walking-Shot-From-Above.mp4",
-    "file_out": "output.mp4",
+    "path": "/home/jeff/Videos",                        # path to where videos are stored                           #noqa
+    "file_in": "People-Walking-Shot-From-Above.mp4",  # input video to be processed                               #noqa
+    "file_out": "output.mp4",                         # output video after processing                             #noqa
+    "file_rec": "recording.mp4",                      # unprocess camera recording                                #noqa
     "device": "/dev/video0",
     "device_no": 0
 }
@@ -27,29 +21,61 @@ initials = {
 }
 
 
+import cv2
+import time
+import numpy
+import myperson
+import argparse
+import tracemess
+
+
 # construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--video_device", required=False,
-                default=defaults["device_no"],
-                help="device number for input video")
-ap.add_argument("-i", "--video_file_in", required=False,
-                default=defaults["path"] + '/' + defaults["file_in"],
-                help="path to input video file")
-ap.add_argument("-o", "--video_file_out", required=False,
-                default=defaults["path"] + '/' + defaults["file_out"],
-                help="path to output video file")
-ap.add_argument("-p", "--picamera", required=False, type=int, default=-1,
-                help="whether or not the Raspberry Pi camera should be used")
+ap = argparse.ArgumentParser(description='This is the MassMutual Raspberry Pi + OpenCV people counter')           #noqa
+ap.add_argument("-d", "--video_device",
+                help="device number for input video",
+                required=False,
+                default=defaults["device_no"])
+ap.add_argument("-i", "--video_file_in",
+                help="path to video file that will be processed",
+                required=False,
+                default=defaults["path"] + '/' + defaults["file_in"])
+ap.add_argument("-o", "--video_file_out",
+                help="path to file where the processed video is stored",
+                required=False,
+                default=defaults["path"] + '/' + defaults["file_out"])
+ap.add_argument("-r", "--camera_recording",
+                help="path to file where the unprocessed camera video will be recorded",
+                required=False,
+                default=defaults["path"] + '/' + defaults["file_rec"])
+ap.add_argument("-p", "--picamera",
+                help="set if you want the Raspberry Pi camera used",
+                required=False, type=int,
+                default=-1)
 args = vars(ap.parse_args())
 
+# import camera driver
+#if args['picamera'] is True:
+#    from picamera.array import PiRGBArray
+#    from picamera import PiCamera
 
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
 cnt_down = initials["cnt_down"]
 
 # Video Source
-# cap = cv2.VideoCapture(0)
+#if args["picamera"] is True:
+#    # initialize the camera and grab a reference to the raw camera capture
+#    camera = PiCamera()
+#    camera.resolution = (640, 480)
+#    camera.framerate = 30
+#    rawCapture = PiRGBArray(camera, size=(640, 480))
+#
+#    # allow the camera to warmup
+#    time.sleep(0.1)
+#else:
+    # cap = cv2.VideoCapture(0)
 cap = cv2.VideoCapture(args["video_file_in"])
+print(args["video_file_in"])
 
 # create trace message object
 trc = tracemess.TraceMess(args["video_file_in"])
@@ -75,6 +101,13 @@ fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
 video_output = cv2.VideoWriter(args["video_file_out"],
                                fourcc, 20.0, (int(width), int(height)))
 
+# Define the codec and create VideoWriter object
+# fourcc = cv2.VideoWriter_fourcc(*'XVID')
+fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
+fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+video_record = cv2.VideoWriter(args["camera_recording"],
+                               fourcc, 20.0, (int(width), int(height)))
 # Video properties
 # cap.set(3, 160) # Width
 # cap.set(4, 120) # Height
@@ -137,6 +170,9 @@ while(cap.isOpened()):
     # Read an image from the video source
     ret, frame = cap.read()
 #     frame = image.array
+
+    # write the frame as capture without processing
+    video_record.write(frame)
 
     for i in persons:
         i.age_one()   # age every person one frame
@@ -251,6 +287,7 @@ while(cap.isOpened()):
     cv2.imshow('Frame', frame)
     # cv2.imshow('Mask', mask)
 
+    # write the frame after it has been processed
     # write the flipped frame
     video_output.write(frame)
 
