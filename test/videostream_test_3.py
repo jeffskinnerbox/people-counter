@@ -4,6 +4,7 @@
 # Version:      0.1.0
 #
 # USAGE
+#   To run using a file  -  python3 videostream_test_3.py -v file
 #
 # SOURCE
 #   "Unifying picamera and cv2.VideoCapture into a single class with OpenCV"
@@ -37,8 +38,7 @@ fps = FPS().start()
 # loop over frames from the video file stream
 while fvs.more():
     # grab the frame from the threaded video file stream, resize
-    # it, and convert it to grayscale (while still retaining 3
-    # channels)
+    # it, and convert it to grayscale (while still retaining 3 channels)
     frame = fvs.read()
     frame = imutils.resize(frame, width=450)
     frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

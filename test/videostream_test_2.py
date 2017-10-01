@@ -4,9 +4,9 @@
 # Version:      0.1.0
 #
 # USAGE
-#   To run the /dev/video camera  -  python3 videostream_test.py -s usb
-#   To run the Raspberry Pi camera  -  python3 videostream_test.py -s picamera
-#   To run using a file  -  python3 videostream_test.py -s file
+#   To run the /dev/video camera  -  python3 videostream_test_2.py -s usb
+#   To run the Raspberry Pi camera  -  python3 videostream_test_2.py -s picamera
+#   To run using a file  -  python3 videostream_test_2.py -s file
 #
 # SOURCE
 #   Modification of "Unifying picamera and cv2.VideoCapture into a single class with OpenCV"
@@ -69,7 +69,6 @@ while True:
     # draw the timestamp on the frame
     timestamp = datetime.datetime.now()
     ts = timestamp.strftime("%A, %B %d, %Y - %I:%M:%S%p")
-    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 

@@ -4,8 +4,8 @@
 # Version:      0.1.0
 #
 # USAGE
-#    python fps_demo.py
-#    python fps_demo.py -d  -  also display the video in a window
+#    python webcamera_fps_test.py  -  report the frames per second
+#    python webcamera_fps_test.py -d  -  also display the video in a window
 #
 # SOURCE
 #    "Increasing Raspberry Pi FPS with Python and OpenCV"

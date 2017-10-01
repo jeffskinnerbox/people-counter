@@ -4,7 +4,7 @@
 # Version:      0.1.0
 #
 # USAGE
-#    python picamera_fps_test.py
+#    python picamera_fps_test.py  -  just report the mesurements
 #    python picamera_fps_test.py -d  -  also display the video in a window
 #
 # SOURCE
