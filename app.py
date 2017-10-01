@@ -1,16 +1,18 @@
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.1.0
+# Version:      0.2.0
 
 
 import os
 import cv2
 import time
 import numpy
+import vstream
 import myperson
 import argparse
-import tracemess
+import tracemess                                  # for debugging
+from tracemess import get_linenumber
 
 
 # default parameters when stating the algorithm
@@ -22,8 +24,11 @@ defaults = {
     "device": "/dev/video0",
     "device_no": 0
 }
+
 if os.uname()[1] == "desktop":
     defaults["path"] = "/home/jeff/Videos"
+elif os.uname()[1] == "BlueRpi":
+    defaults["path"] = "/home/pi/Videos"
 
 # initial conditions when stating the algorithm
 initials = {
@@ -34,6 +39,11 @@ initials = {
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser(description='This is the MassMutual Raspberry Pi + OpenCV people counter')           #noqa
+ap.add_argument("-s", "--source",
+                help="include if the Raspberry Pi Camera should be used",
+                required=False,
+                choices=['file', 'usbcamera', 'picamera'],
+                default='file')
 ap.add_argument("-d", "--video_device",
                 help="device number for input video",
                 required=False,
@@ -55,26 +65,30 @@ ap.add_argument("-p", "--picamera",
                 action='store_true')
 args = vars(ap.parse_args())
 
+# create trace message object
+trc = tracemess.TraceMess(args["video_file_in"])
+
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
 cnt_down = initials["cnt_down"]
 
-cap = cv2.VideoCapture(args["video_file_in"])
-print(args["video_file_in"])
+#cap = cv2.VideoCapture(args["video_file_in"])
+cap = vstream.VStream(args["source"], args["video_file_in"])
 
-# create trace message object
-trc = tracemess.TraceMess(args["video_file_in"])
+# wait while camera warms up and things initialize
+time.sleep(2.0)
 
 # Check if camera opened successfully
-if (cap.isOpened() is False):
-    trc.error("Error opening video stream or file")
-    trc.stop()
-    exit
+#if (cap.isOpened() is False):
+#    trc.error("Error opening video stream or file")
+#    trc.stop()
+#    exit
 
 # Get current width and height of frame
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-trc.info({"frame": {"width": width, "height": height,
+trc.info({"line_no": get_linenumber(),
+          "frame": {"width": width, "height": height,
                     "fps": cap.get(cv2.CAP_PROP_FPS),
                     "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}})
 
@@ -113,8 +127,8 @@ line_down = int(3*(h/5))    # draw red line 3/5 from the bottom
 up_limit = int(1*(h/5))
 down_limit = int(4*(h/5))
 
-trc.info({"area threshold": areaTH, "lines": {"red y axis": str(line_down),
-                                              "blue y axis": str(line_up)}})
+trc.info({"line_no": get_linenumber(), "area threshold": areaTH,
+          "lines": {"red y axis": str(line_down), "blue y axis": str(line_up)}})
 
 line_down_color = (255, 0, 0)    # red
 line_up_color = (0, 0, 255)      # blue
@@ -150,10 +164,13 @@ persons = []
 max_p_age = 5
 pid = 1
 
-while(cap.isOpened()):
+# loop over the frames from the video stream or file
+#while(cap.isOpened()):
+while cap.more():
 # for image in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):                 #noqa
     # Read an image from the video source
-    ret, frame = cap.read()
+#    ret, frame = cap.read()
+    frame = cap.read()
 #     frame = image.array
 
     # write the frame as capture without processing
@@ -180,7 +197,8 @@ while(cap.isOpened()):
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernelCl)
         mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernelCl)
     except:
-        trc.info({"total count": {"enter": cnt_up, "exit": cnt_down}})
+        trc.info({"line_no": get_linenumber(), "made it here": 4})
+        trc.info({"line_no": get_linenumber(), "total count": {"enter": cnt_up, "exit": cnt_down}})
         trc.stop()
         break
     #################
@@ -212,12 +230,12 @@ while(cap.isOpened()):
                         i.updateCoords(cx, cy)   # update coordinates in the object and resets age     #noqa
                         if i.going_UP(line_down, line_up) is True:
                             cnt_up += 1
-                            trc.info({"object": {"id":i.getId(),"direction": "up", "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})            #noqa
-                            trc.feature({"total count": {"enter": cnt_up, "exit": cnt_down, "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})   #noqa
+                            trc.info({"line_no": get_linenumber(), "object": {"id":i.getId(),"direction": "up", "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})            #noqa
+                            trc.feature({"line_no": get_linenumber(), "total count": {"enter": cnt_up, "exit": cnt_down, "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})   #noqa
                         elif i.going_DOWN(line_down, line_up) is True:
                             cnt_down += 1
-                            trc.info({"object": {"id":i.getId(),"direction": "down", "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})          #noqa
-                            trc.feature({"total count": {"enter": cnt_up, "exit": cnt_down, "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})   #noqa
+                            trc.info({"line_no": get_linenumber(), "object": {"id":i.getId(),"direction": "down", "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})          #noqa
+                            trc.feature({"line_no": get_linenumber(), "total count": {"enter": cnt_up, "exit": cnt_down, "time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())}})   #noqa
                         break
                     if i.getState() == '1':
                         if i.getDir() == 'down' and i.getY() > down_limit:
@@ -286,6 +304,7 @@ while(cap.isOpened()):
     #   CLEANING    #
     #################
 trc.stop()
-cap.release()
+#cap.release()
+cap.stop()
 video_output.release()
 cv2.destroyAllWindows()

@@ -1,12 +1,18 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.1.0
+# Version:      0.2.0
 
 from cv2 import __version__
 import uuid
 import json
 import ts_dweepy        # https://pypi.python.org/pypi/dweepy/
 import time
+from inspect import currentframe, getframeinfo  # https://stackoverflow.com/questions/3056048/filename-and-line-number-of-python-script
+
+
+def get_linenumber():
+    cf = currentframe()
+    return cf.f_back.f_lineno
 
 
 class TraceMess:
