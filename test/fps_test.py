@@ -1,3 +1,7 @@
+
+# COULD GET THIS TO WORK AS DESIRED. NOW THAT I HAVE IDENTITIFED FILEVIDEOSTREAM
+# CLASS, I WILL TAKE UP THIS WORK IN VERSION videostream_test_4.py
+
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
