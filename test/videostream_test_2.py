@@ -62,12 +62,14 @@ while True:
         ret, frame = vs.read()
     if frame is None:
         print("Reached end of file or stream ...")
+        fps.stop()
         break
     frame = imutils.resize(frame, width=600)
 
     # draw the timestamp on the frame
     timestamp = datetime.datetime.now()
     ts = timestamp.strftime("%A, %B %d, %Y - %I:%M:%S%p")
+    frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
     cv2.putText(frame, ts, (10, frame.shape[0] - 10),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0, 0, 255), 1)
 
@@ -80,11 +82,13 @@ while True:
     # if the `q` or esc key was pressed, break from the loop
     key = cv2.waitKey(1)
     if chr(key & 255) == 'q' or key == 27:
-        fps.stop()
         print("Camera stopped by user ...")
-        print("\telasped time: {:.2f}".format(fps.elapsed()))
-        print("\tapprox. FPS: {:.2f}".format(fps.fps()))
+        fps.stop()
         break
+
+# stop the timer and display FPS information
+print("\telasped time: {:.2f}".format(fps.elapsed()))
+print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # cleanup by closing the window and stop video streaming
 cv2.destroyAllWindows()
