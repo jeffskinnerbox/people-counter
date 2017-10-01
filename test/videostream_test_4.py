@@ -71,8 +71,9 @@ class VStream:
 ap = argparse.ArgumentParser()
 ap.add_argument("-s", "--source",
                 help="include if the Raspberry Pi Camera should be used",
-                required=True,
-                default='usb')      # values are: usbcamera, picamera, file
+                required=False,
+                choices=['file', 'usbcamera', 'picamera'],
+                default='usbcamera')
 ap.add_argument("-f", "--file_input",
                 help="instead of a camera, use a file as your input stream",
                 required=False,
