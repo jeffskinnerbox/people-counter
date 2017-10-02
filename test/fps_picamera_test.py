@@ -97,7 +97,7 @@ fps = FPS().start()
 
 # loop over some frames...this time using the threaded stream
 i = 0
-while vs.update():
+while i < args["num_frames"]:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
     i += 1
@@ -115,10 +115,6 @@ while vs.update():
     # update the FPS counter
     fps.update()
 
-    # check to see if the desired number of frames have been reached
-    if i == args["num_frames"]:
-        break
-
 # stop the timer and display FPS information
 fps.stop()
 print("\telasped time: {:.2f}".format(fps.elapsed()))
@@ -127,3 +123,7 @@ print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 # do a bit of cleanup
 vs.stop()
 cv2.destroyAllWindows()
+
+# NOTE: I believe the PiVideoStream.stop() method is designed right.
+# It should include rawCapture.close() and camera.close() but does not.
+# As a result, you get an error in the object PiCamera.capture_continuous.
