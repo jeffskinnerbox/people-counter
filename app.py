@@ -8,23 +8,31 @@ import os
 import cv2
 import time
 import numpy
+import imutils
 import vstream
 import myperson
 import argparse
+import datetime
 import tracemess                                  # for debugging
 from tracemess import get_linenumber
+from imutils.video import FPS
 
 
 # default parameters when stating the algorithm
 defaults = {
-    "path": "/home/pi/Videos",                        # path to where videos are stored                           #noqa
-    "file_in": "People-Walking-Shot-From-Above.mp4",  # input video to be processed                               #noqa
-    "file_out": "output.mp4",                         # output video after processing                             #noqa
-    "file_rec": "recording.mp4",                      # unprocess camera recording                                #noqa
-    "device": "/dev/video0",
-    "device_no": 0
+    "path": "/home/pi/Videos",                        # path to video storage
+    "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
+    "file_rec": "recording.mp4",                      # video before processing
+    "file_recP": "recordingP.mp4",                    # video after processing
+    "warmup_time": 1.5,                               # sec for camera warm up
+    "device_no": 0,                                   # usb video device number
+    "color_red": (255, 0, 0),
+    "color_blue": (0, 0, 255),
+    "color_green": (0, 255, 0),
+    "color_white": (255, 255, 255)
 }
 
+# update your defaults based on the box your running on
 if os.uname()[1] == "desktop":
     defaults["path"] = "/home/jeff/Videos"
 elif os.uname()[1] == "BlueRpi":
@@ -38,7 +46,8 @@ initials = {
 
 
 # construct the argument parse and parse the arguments
-ap = argparse.ArgumentParser(description='This is the MassMutual Raspberry Pi + OpenCV people counter')           #noqa
+ap = argparse.ArgumentParser(description='This is the MassMutual Raspberry Pi \
+                             + OpenCV people counter')
 ap.add_argument("-s", "--source",
                 help="include if the Raspberry Pi Camera should be used",
                 required=False,
@@ -48,16 +57,17 @@ ap.add_argument("-d", "--video_device",
                 help="device number for input video",
                 required=False,
                 default=defaults["device_no"])
-ap.add_argument("-i", "--video_file_in",
+ap.add_argument("-i", "--file_in",
                 help="path to video file that will be processed",
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_in"])
-ap.add_argument("-o", "--video_file_out",
+ap.add_argument("-o", "--file_recP",
                 help="path to file where the processed video is stored",
                 required=False,
-                default=defaults["path"] + '/' + defaults["file_out"])
-ap.add_argument("-r", "--camera_recording",
-                help="path to file where the unprocessed camera video will be recorded",                         #noqa
+                default=defaults["path"] + '/' + defaults["file_recP"])
+ap.add_argument("-r", "--file_rec",
+                help="path to file where the unprocessed camera \
+                video will be recorded",
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_rec"])
 ap.add_argument("-p", "--picamera",
@@ -66,23 +76,23 @@ ap.add_argument("-p", "--picamera",
 args = vars(ap.parse_args())
 
 # create trace message object
-trc = tracemess.TraceMess(args["video_file_in"])
+trc = tracemess.TraceMess(args["file_in"])
 
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
 cnt_down = initials["cnt_down"]
 
-#cap = cv2.VideoCapture(args["video_file_in"])
-cap = vstream.VStream(args["source"], args["video_file_in"])
+#cap = cv2.VideoCapture(args["file_in"])
+cap = vstream.VStream(args["source"], args["file_in"])
 
-# wait while camera warms up and things initialize
-time.sleep(2.0)
+# wait while camera warms up and VStream initialize
+time.sleep(defaults["warmup_time"])
 
-# Check if camera opened successfully
-#if (cap.isOpened() is False):
-#    trc.error("Error opening video stream or file")
-#    trc.stop()
-#    exit
+# Check if camera or file has opened successfully
+if cap.isopen() is False:
+    trc.error("Error opening video stream or file")
+    trc.stop()
+    exit
 
 # Get current width and height of frame
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -97,7 +107,7 @@ trc.info({"line_no": get_linenumber(),
 fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
 fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
-video_output = cv2.VideoWriter(args["video_file_out"],
+video_recP = cv2.VideoWriter(args["file_recP"],
                                fourcc, 20.0, (int(width), int(height)))
 
 # Define the codec and create VideoWriter object
@@ -105,7 +115,7 @@ video_output = cv2.VideoWriter(args["video_file_out"],
 fourcc = cv2.VideoWriter_fourcc(*'MP4V')
 fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
 fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
-video_record = cv2.VideoWriter(args["camera_recording"],
+video_rec = cv2.VideoWriter(args["file_rec"],
                                fourcc, 20.0, (int(width), int(height)))
 # Video properties
 # cap.set(3, 160) # Width
@@ -115,8 +125,10 @@ video_record = cv2.VideoWriter(args["camera_recording"],
 # for i in range(19):
 #    print(i, cap.get(i))
 
-w = cap.get(3)              # width of the frame
-h = cap.get(4)              # height of the frame
+w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+#w = cap.get(3)              # width of the frame
+#h = cap.get(4)              # height of the frame
 frameArea = h*w             # area of the frame
 areaTH = frameArea/250
 
@@ -130,8 +142,8 @@ down_limit = int(4*(h/5))
 trc.info({"line_no": get_linenumber(), "area threshold": areaTH,
           "lines": {"red y axis": str(line_down), "blue y axis": str(line_up)}})
 
-line_down_color = (255, 0, 0)    # red
-line_up_color = (0, 0, 255)      # blue
+line_down_color = defaults["color_red"]               # red
+line_up_color = defaults["color_blue"]                # blue
 pt1 = [0, line_down]
 pt2 = [w, line_down]
 pts_L1 = numpy.array([pt1, pt2], numpy.int32)
@@ -150,7 +162,7 @@ pt8 = [w, down_limit]
 pts_L4 = numpy.array([pt7, pt8], numpy.int32)
 pts_L4 = pts_L4.reshape((-1, 1, 2))
 
-# Background subtractor
+# Background subtraction
 fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
 
 # Structural elements for morphogic filters
@@ -164,17 +176,23 @@ persons = []
 max_p_age = 5
 pid = 1
 
-# loop over the frames from the video stream or file
-#while(cap.isOpened()):
-while cap.more():
-# for image in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):                 #noqa
-    # Read an image from the video source
-#    ret, frame = cap.read()
-    frame = cap.read()
-#     frame = image.array
+# start the FPS timer
+fps = FPS().start()
 
-    # write the frame as capture without processing
-    video_record.write(frame)
+trc.info({"line_no": get_linenumber(), "cap.more": cap.more()})
+
+# loop over the frames from the video stream or file
+while cap.more():
+    # grab the frame from the threaded video file stream
+    frame = cap.read()
+
+    # write the frame to a file, as capture and without processing
+    video_rec.write(frame)
+
+    # grab the frame from the threaded video file stream, resize it,
+    # and convert it to grayscale
+    frame = imutils.resize(frame, width=450)
+    #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     for i in persons:
         i.age_one()   # age every person one frame
@@ -198,7 +216,8 @@ while cap.more():
         mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernelCl)
     except:
         trc.info({"line_no": get_linenumber(), "made it here": 4})
-        trc.info({"line_no": get_linenumber(), "total count": {"enter": cnt_up, "exit": cnt_down}})
+        trc.info({"line_no": get_linenumber(),
+                  "total count": {"enter": cnt_up, "exit": cnt_down}})
         trc.stop()
         break
     #################
@@ -255,8 +274,8 @@ while cap.more():
             #################
             #   DRAWINGS    #
             #################
-            cv2.circle(frame, (cx, cy), 5, (0, 0, 255), -1)
-            img = cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+            cv2.circle(frame, (cx, cy), 5, defaults["color_blue"], -1)
+            img = cv2.rectangle(frame, (x, y), (x+w, y+h), defaults["color_green"], 2)
             # cv2.drawContours(frame, cnt, -1, (0, 255, 0), 3)
 
     # END for cnt in contours0
@@ -271,7 +290,8 @@ while cap.more():
             # frame = cv2.polylines(frame, [pts], False, i.getRGB())
         # if i.getId() == 9:
             # print(str(i.getX()), ', ', str(i.getY()))
-        cv2.putText(frame, str(i.getId()), (i.getX(), i.getY()), font, 0.3, i.getRGB(), 1, cv2.LINE_AA)  #noqa
+        cv2.putText(frame, str(i.getId()), (i.getX(), i.getY()),
+                    font, 0.3, i.getRGB(), 1, cv2.LINE_AA)
 
     #################
     #     IMAGES    #
@@ -280,19 +300,31 @@ while cap.more():
     str_down = 'DOWN: ' + str(cnt_down)
     frame = cv2.polylines(frame, [pts_L1], False, line_down_color, thickness=2)
     frame = cv2.polylines(frame, [pts_L2], False, line_up_color, thickness=2)
-    frame = cv2.polylines(frame, [pts_L3], False, (255, 255, 255), thickness=1)
-    frame = cv2.polylines(frame, [pts_L4], False, (255, 255, 255), thickness=1)
-    cv2.putText(frame, str_up, (10, 40), font, 0.5, (255, 255, 255), 2, cv2.LINE_AA)  #noqa
-    cv2.putText(frame, str_up, (10, 40), font, 0.5, (0, 0, 255), 1, cv2.LINE_AA)  #noqa
-    cv2.putText(frame, str_down, (10, 90), font, 0.5, (255, 255, 255), 2, cv2.LINE_AA)  #noqa
-    cv2.putText(frame, str_down, (10, 90), font, 0.5, (255, 0, 0), 1, cv2.LINE_AA)  #noqa
+    frame = cv2.polylines(frame, [pts_L3], False, defaults["color_white"], thickness=1)
+    frame = cv2.polylines(frame, [pts_L4], False, defaults["color_white"], thickness=1)
+    cv2.putText(frame, str_up, (10, 40), font, 0.5,
+                defaults["color_white"], 2, cv2.LINE_AA)
+    cv2.putText(frame, str_up, (10, 40), font, 0.5,
+                defaults["color_blue"], 1, cv2.LINE_AA)
+    cv2.putText(frame, str_down, (10, 90), font, 0.5,
+                defaults["color_white"], 2, cv2.LINE_AA)
+    cv2.putText(frame, str_down, (10, 90), font, 0.5,
+                defaults["color_red"], 1, cv2.LINE_AA)
+
+    # draw the time stamp on the frame
+    timestamp = datetime.datetime.now()
+    ts = timestamp.strftime("%A, %B %d, %Y - %I:%M:%S%p")
+    cv2.putText(frame, ts, (10, frame.shape[0] - 10),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.35, defaults["color_blue"], 1)
 
     cv2.imshow('Frame', frame)
     # cv2.imshow('Mask', mask)
 
     # write the frame after it has been processed
-    # write the flipped frame
-    video_output.write(frame)
+    video_recP.write(frame)
+
+    # update the frame count
+    fps.update()
 
     # pre-set ESC or 'q' to exit
     k = cv2.waitKey(1) & 0xFF
@@ -300,11 +332,15 @@ while cap.more():
         break
 # END while(cap.isOpened())
 
-    #################
-    #   CLEANING    #
-    #################
+# stop the timer and display FPS information
+fps.stop()
+print("\telapsed time: {:.2f}".format(fps.elapsed()))
+print("\tapprox. FPS: {:.2f}".format(fps.fps()))
+
+# do the final cleanup before exiting
 trc.stop()
 #cap.release()
 cap.stop()
-video_output.release()
+video_rec.release()
+video_recP.release()
 cv2.destroyAllWindows()

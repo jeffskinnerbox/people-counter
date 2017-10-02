@@ -50,22 +50,30 @@ class VStream:
         # indicate that the thread should be stopped
         self.stream.stop()
 
+    def isopen(self):
+        # check if the camera or file is already open
+        if self.vsource == 'picamera':
+            return self.stream.stream._check_camera_open()
+        else:
+            return self.stream.stream.isOpened()
+
     def get(self, obj):
         # acess cv2.VideoCapture.get() within the FileVideoStream class
         if self.vsource == 'picamera':
-            if obj == cv2.CAP_PROP_FRAME_WIDTH:
+            if obj == cv2.CAP_PROP_FRAME_WIDTH:      # Width of the frames in the video stream
                 return 640
-            elif obj == cv2.CAP_PROP_FRAME_HEIGHT:
+            elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # Height of the frames in the video stream
                 return 480
-            elif obj == cv2.CAP_PROP_FPS:
+            elif obj == cv2.CAP_PROP_FPS:            # Frame rate
                 return 30
-            elif obj == cv2.CAP_PROP_FRAME_COUNT:
+            elif obj == cv2.CAP_PROP_FRAME_COUNT:    # Number of frames in the video file
                 return 1
         else:
             return self.stream.stream.get(obj)
 
 """
 Picamera 1.13 Documentation (Release 1.13) - https://media.readthedocs.org/pdf/picamera/latest/picamera.pdf
+API - picamera.camera Module - http://picamera.readthedocs.io/en/release-1.13/api_camera.html
 
         self.POS_MSEC = vidcap.get(CAP_PROP_POS_MSEC)             # Current position of the video file in milliseconds or video capture timestamp
         self.POS_FRAMES = vidcap.get(CAP_PROP_POS_FRAMES)         # 0-based index of the frame to be decoded/captured next
