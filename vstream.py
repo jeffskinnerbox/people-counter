@@ -53,7 +53,8 @@ class VStream:
     def isopen(self):
         # check if the camera or file is already open
         if self.vsource == 'picamera':
-            return self.stream.stream._check_camera_open()
+            #return self.stream.stream._check_camera_open()
+            return True
         else:
             return self.stream.stream.isOpened()
 
