@@ -45,7 +45,7 @@ stream = camera.capture_continuous(rawCapture,
                                    format="bgr", use_video_port=True)
 
 # allow the camera to warmup and start the FPS counter
-print("1st Pass: Reading", args["num_frames"], "frames from web camera.")
+print("1st Pass: Reading", args["num_frames"], "frames from pi camera.")
 print("Pi Camera warming up ...")
 time.sleep(2.0)
 fps = FPS().start()
@@ -89,16 +89,18 @@ camera.close()
 
 # created a *threaded *video stream, allow the camera sensor to warmup,
 # and start the FPS counter
-print("\n2nd Pass: Reading", args["num_frames"], "frames from web camera.")
+print("\n2nd Pass: Reading", args["num_frames"], "frames from pi camera.")
 print("Using THREADED frames from Pi Camera...")
 vs = PiVideoStream().start()
 time.sleep(2.0)
 fps = FPS().start()
 
 # loop over some frames...this time using the threaded stream
-while fps._numFrames < args["num_frames"]:
+i = 0
+while vs.update():
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
+    i += 1
     frame = vs.read()
     frame = imutils.resize(frame, width=400)
 
@@ -113,11 +115,15 @@ while fps._numFrames < args["num_frames"]:
     # update the FPS counter
     fps.update()
 
+    # check to see if the desired number of frames have been reached
+    if i == args["num_frames"]:
+        break
+
 # stop the timer and display FPS information
 fps.stop()
 print("\telasped time: {:.2f}".format(fps.elapsed()))
 print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
-cv2.destroyAllWindows()
 vs.stop()
+cv2.destroyAllWindows()
