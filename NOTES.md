@@ -11,7 +11,10 @@ via [git][01] and [GitHub][02].  For more information, check out these posts:
 * [Using Git and Github to Manage Your Dotfiles][03]
 * [Managing dot files with Git][04]
 
-Check this out: [git - the simple guide just a simple guide for getting started with git. no deep shit ;)](http://rogerdudler.github.io/git-guide/)
+Check this out:
+* [git - the simple guide just a simple guide for getting started with git. no deep shit ;)](http://rogerdudler.github.io/git-guide/)
+* [Git Tutorial](http://fab.cba.mit.edu/classes/4.140/doc/git/)
+* [What is git?](http://fab.cba.mit.edu/classes/863.16/doc/tutorials/version_control/index.html)
 
 ================================================================================
 ## Creating a Git Repository
