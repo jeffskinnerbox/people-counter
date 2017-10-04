@@ -3,6 +3,8 @@ Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
 Version:      0.1.0
 -->
 
+To measure performance of threading, use `mpstat -P ALL 1`.
+
 # My Jupyter Notebooks
 My expanding set of Jupyter Notebooks.
 
@@ -40,6 +42,6 @@ Now enter `localhost:8888` in your favorite browser to use the remote Jupyter No
 1. In one window, login to desktop -- cd Jupyter-Notebooks ; jupyter notebook --no-browser --port=8889
 2. In 2nd window -- ssh -N jeff@desktop -L localhost:8888:localhost:8889
 3. In 3rd window -- gnome-www-browser
-4. Now enter `localhost:8888` in the browser and now you can acccess the remote Jupyter Notebook!
+4. Now enter `localhost:8888` in the browser and now you can access the remote Jupyter Notebook!
 
 
