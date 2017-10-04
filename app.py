@@ -23,6 +23,7 @@ from imutils.video import FPS
 
 # default parameters when stating the algorithm
 defaults = {
+    "trace": True,                                    # turn on trace messging
     "path": "/home/pi/Videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
@@ -128,8 +129,8 @@ ap.add_argument("-p", "--picamera",
                 action='store_true')
 args = vars(ap.parse_args())
 
-# create trace message object
-trc = tracemess.TraceMess(args["file_in"]).start()
+# create object to manage trace messages
+trc = tracemess.TraceMess(on=defaults["trace"], src=args["source"]).start()
 
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
@@ -141,7 +142,8 @@ cap = vstream.VStream(source=args["source"], path=args["file_in"],
 # wait while camera warms up and VStream initialize
 time.sleep(args["warmup_time"])
 
-trc.info({"line#": get_linenumber(), "source": args["source"], "path": args["file_in"], "src": args["video_device"]})
+trc.info({"line#": get_linenumber(), "source": args["source"],
+    "path": args["file_in"], "src": args["video_device"]}, on=defaults["trace"])
 
 """
 # Check if camera or file has opened successfully
@@ -157,7 +159,8 @@ height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 trc.info({"line#": get_linenumber(),
           "frame": {"width": width, "height": height,
                     "fps": cap.get(cv2.CAP_PROP_FPS),
-                    "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}})
+                    "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}},
+          on=defaults["trace"])
 
 # Define the codec and create VideoWriter object
 # fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -262,7 +265,7 @@ while cap.more():
     for i in persons:
         i.age_one()   # age every person one frame
 
-    trc.time_start({"line#": get_linenumber()})
+    trc.time_start(mess="{'line#': get_linenumber()}", on=defaults["trace"])
     #########################
     #   PRE-PROCESSING      #
     #########################
@@ -282,13 +285,14 @@ while cap.more():
         mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernelCl)
     except:
         trc.info({"line#": get_linenumber(),
-                  "EXCEPTION": {"enter": cnt_up, "exit": cnt_down}})
+                  "EXCEPTION": {"enter": cnt_up, "exit": cnt_down}},
+                  on=defaults["trace"])
         break
     #################
     #    CONTOURS   #
     #################
-    trc.time_stop({"line#": get_linenumber()})
-    trc.time_elapsed()
+    trc.time_stop(mess="{'line#': get_linenumber()}", on=defaults["trace"])
+    trc.time_elapsed(on=defaults["trace"])
 
     # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.                #noqa
     _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)        #noqa
@@ -320,24 +324,24 @@ while cap.more():
                                       "object": {"id": i.getId(),
                                       "direction": "up",
                                       "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                                            time.gmtime())}})
+                                                            time.gmtime())}}, on=defaults["trace"])
                             trc.feature({"line#": get_linenumber(),
                                     "total count": {"enter": cnt_up,
                                     "exit": cnt_down,
                                     "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                    time.gmtime())}})
+                                    time.gmtime())}}, on=defaults["trace"])
                         elif i.going_DOWN(line_down, line_up) is True:
                             cnt_down += 1
                             trc.info({"line#": get_linenumber(),
                                     "object": {"id": i.getId(),
                                     "direction": "down",
                                     "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                    time.gmtime())}})
+                                    time.gmtime())}}, on=defaults["trace"])
                             trc.feature({"line#": get_linenumber(),
                                     "total count": {"enter": cnt_up,
                                     "exit": cnt_down,
                                     "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                    time.gmtime())}})
+                                    time.gmtime())}}, on=defaults["trace"])
                         break
                     if i.getState() == '1':
                         if i.getDir() == 'down' and i.getY() > down_limit:
@@ -413,7 +417,7 @@ while cap.more():
 
     # update the frame count
     fps.update()
-    trc.info({"frame no.": fps._numFrames})
+    trc.info({"frame no.": fps._numFrames}, on=defaults["trace"])
 
     # pre-set ESC or 'q' to exit
     k = cv2.waitKey(1) & 0xFF
@@ -426,7 +430,7 @@ print("\telapsed time: {:.2f}".format(fps.elapsed()))
 print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # do the final cleanup before exiting
-trc.stop()
+trc.stop(on=defaults["trace"])
 cap.stop()
 video_rec.release()
 video_recP.release()

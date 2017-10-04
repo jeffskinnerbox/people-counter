@@ -18,7 +18,7 @@ def get_linenumber():
 
 class TraceMess:
 
-    def __init__(self, verbose=False, src="not specified"):
+    def __init__(self, on=True, verbose=False, src="not specified"):
         self.run_stamp = {
             "mess-type": "EXEC",
             "mess-format": "0.0.2",
@@ -36,7 +36,10 @@ class TraceMess:
             }
         }
 
-    def start(self):
+    def start(self, on=True):
+        if on is False:
+            return
+
         self.run_stamp["run-status"] = "start"
         self.run_stamp["run-time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                                    time.gmtime())
@@ -47,7 +50,10 @@ class TraceMess:
 
         return self
 
-    def stop(self):
+    def stop(self, on=True):
+        if on is False:
+            return
+
         self.run_stamp["run-status"] = "stop"
         self.run_stamp["run-time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                                    time.gmtime())
@@ -56,7 +62,10 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": {"trace stopped": self.run_stamp["run-time"]}}))
 
-    def time_start(self, mess=None):
+    def time_start(self, on=True, mess=None):
+        if on is False:
+            return
+
         # start the timer
         self.run_stamp["timer-start"] = datetime.datetime.now()
         t= time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
@@ -68,7 +77,10 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": {"timer-start": t, "mess-text": mess}}))
 
-    def time_stop(self, mess=None):
+    def time_stop(self, on=True, mess=None):
+        if on is False:
+            return
+
         # stop the timer
         self.run_stamp["timer-stop"] = datetime.datetime.now()
         t= time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())
@@ -80,7 +92,10 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": {"timer-stop": t, "mess-text": mess}}))
 
-    def time_elapsed(self, mess=None):
+    def time_elapsed(self, on=True, mess=None):
+        if on is False:
+            return
+
         # return the total number of seconds between the start and end interval
         t = (self.run_stamp["timer-stop"] - self.run_stamp["timer-start"]).total_seconds()
 
@@ -93,7 +108,10 @@ class TraceMess:
             print(json.dumps({"INFO": {"timer-interval": t,
                 "mess-text": mess}}))
 
-    def info(self, mess):
+    def info(self, mess, on=True):
+        if on is False:
+            return
+
         if self.run_stamp["verbose"] is True:
             print(json.dumps({"mess-type": "INFO",
                             "run-id": self.run_stamp["run-id"],
@@ -101,7 +119,10 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": mess}))
 
-    def error(self, mess):
+    def error(self, mess, on=True):
+        if on is False:
+            return
+
         if self.run_stamp["verbose"] is True:
             print(json.dumps({"mess-type": "ERROR",
                             "run-id": self.run_stamp["run-id"],
@@ -109,7 +130,10 @@ class TraceMess:
         else:
             print(json.dumps({"ERROR": mess}))
 
-    def warning(self, mess):
+    def warning(self, mess, on=True):
+        if on is False:
+            return
+
         if self.run_stamp["verbose"] is True:
             print(json.dumps({"mess-type": "WARNING",
                             "run-id": self.run_stamp["run-id"],
@@ -118,13 +142,14 @@ class TraceMess:
             print(json.dumps({"WARNING": mess}))
 
 
-    def feature(self, mess):
-        if self.run_stamp["verbose"] is True:
-            print(json.dumps({"mess-type": "FEATURE",
-                            "run-id": self.run_stamp["run-id"],
-                            "mess-text": mess}))
-        else:
-            print(json.dumps({"FEATURE": mess}))
+    def feature(self, mess, on=True):
+        if on is True:
+            if self.run_stamp["verbose"] is True:
+                print(json.dumps({"mess-type": "FEATURE",
+                                "run-id": self.run_stamp["run-id"],
+                                "mess-text": mess}))
+            else:
+                print(json.dumps({"FEATURE": mess}))
 
         ts_dweepy.dweet_for(self.run_stamp["run-platform"],
                             {"mess-type": "FEATURE",
