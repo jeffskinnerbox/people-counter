@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.1.0
+# Version:      0.2.0
 #
 # USAGE
 #    python fps_picamera_test.py  -  just report the mesurements
@@ -34,6 +34,10 @@ ap.add_argument("-d", "--display",
                 action='store_true')
 args = vars(ap.parse_args())
 
+print("\nNOTE: I believe the PiVideoStream.stop() method is designed for")
+print("continious operation and not for capture of defined number of frames.")
+print("As a result, you get an error in PiCamera.capture_continuous.\n")
+
 # ################################## 1st Pass ##################################
 
 # initialize the camera and stream
@@ -48,6 +52,7 @@ stream = camera.capture_continuous(rawCapture,
 print("1st Pass: Reading", args["num_frames"], "frames from pi camera.")
 print("Pi Camera warming up ...")
 time.sleep(2.0)
+print("Starting test...")
 fps = FPS().start()
 
 # loop over some frames
@@ -93,6 +98,7 @@ print("\n2nd Pass: Reading", args["num_frames"], "frames from pi camera.")
 print("Using THREADED frames from Pi Camera...")
 vs = PiVideoStream().start()
 time.sleep(2.0)
+print("Starting test...")
 fps = FPS().start()
 
 # loop over some frames...this time using the threaded stream
@@ -119,9 +125,5 @@ print("\telasped time: {:.2f}".format(fps.elapsed()))
 print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
 # do a bit of cleanup
-vs.stop()
 cv2.destroyAllWindows()
-
-# NOTE: I believe the PiVideoStream.stop() method is designed right.
-# It should include rawCapture.close() and camera.close() but does not.
-# As a result, you get an error in the object PiCamera.capture_continuous.
+vs.stop()
