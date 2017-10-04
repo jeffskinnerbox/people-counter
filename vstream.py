@@ -11,19 +11,21 @@ from imutils.video import VideoStream
 class VStream:
     vsource = None
 
-    def __init__(self, source, path=None, queueSize=128, src=0,
+    def __init__(self, source='file', path=None, queueSize=128, src=0,
                  resolution=(640, 480), framerate=30):
-        # initialize the video stream along with the boolean
+        # initialize the video stream along with the boolean:w
+
         # used to indicate if the thread should be stopped or not
         self.vsource = source
         if self.vsource == 'file':
-            self.stream = FileVideoStream(path, queueSize).start()
+            self.stream = FileVideoStream(path, queueSize=queueSize).start()
         elif self.vsource == 'usbcamera':
             self.stream = VideoStream(src=src, usePiCamera=False,
                                       resolution=resolution,
                                       framerate=framerate).start()
         elif self.vsource == 'picamera':
-            self.stream = VideoStream(usePiCamera=True, resolution=resolution,
+            self.stream = VideoStream(src=src, usePiCamera=True,
+                                      resolution=resolution,
                                       framerate=framerate).start()
 
     def start(self):

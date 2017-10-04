@@ -2,6 +2,9 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
 # Version:      0.2.0
+#
+# Source: People Counter blog by Federico Mejia Barajas
+#         http://www.femb.com.mx/people-counter/people-counter-9-counting/
 
 
 import os
@@ -13,7 +16,7 @@ import vstream
 import myperson
 import argparse
 import datetime
-import tracemess                                  # for debugging
+import tracemess                          # for debugging
 from tracemess import get_linenumber
 from imutils.video import FPS
 
@@ -90,13 +93,9 @@ def calc_lines(capture):
               "frame": {"width": w, "height": h,
                         "frameArea": frameArea, "areaTH": areaTH}})
 
-   # trc.info({"line#": get_linenumber(),
-   #           "frame_lines": {"pts_L1": pts_L1, "pts_L2": pts_L2,
-   #           "pts_L3": pts_L3, "pts_L4": pts_L4}})
-
-    trc.info({"line#": get_linenumber(),
-              "line_values": {"line_up": line_up, "line_down": line_down,
-              "up_limit": up_limit, "down_limit": down_limit}})
+    trc.info({"line#": get_linenumber(), "line_values": {"line_up": line_up,
+              "line_down": line_down, "up_limit": up_limit,
+              "down_limit": down_limit}})
 
     return line_up, line_down, up_limit, down_limit, areaTH, pts_L1, pts_L2, pts_L3, pts_L4
 
@@ -112,6 +111,7 @@ ap.add_argument("-s", "--source",
 ap.add_argument("-d", "--video_device",
                 help="device number for input video",
                 required=False,
+                type=int,
                 default=defaults["device_no"])
 ap.add_argument("-i", "--file_in",
                 help="path to video file that will be processed",
@@ -126,6 +126,11 @@ ap.add_argument("-r", "--file_rec",
                 video will be recorded",
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_rec"])
+ap.add_argument("-w", "--warmup_time",
+                help="number of seconds to wait so camera can warm up",
+                required=False,
+                type=int,
+                default=defaults["warmup_time"])
 ap.add_argument("-p", "--picamera",
                 help="include if the Raspberry Pi Camera should be used",
                 action='store_true')
@@ -138,17 +143,22 @@ trc = tracemess.TraceMess(args["file_in"])
 cnt_up = initials["cnt_up"]
 cnt_down = initials["cnt_down"]
 
-cap = vstream.VStream(args["source"], args["file_in"])
-cap.start()
+cap = vstream.VStream(source=args["source"], path=args["file_in"],
+                      src=args["video_device"])
 
 # wait while camera warms up and VStream initialize
-time.sleep(defaults["warmup_time"])
+time.sleep(args["warmup_time"])
 
+trc.info({"line#": get_linenumber(), "source": args["source"],
+          "path": args["file_in"], "src": args["video_device"]})
+
+"""
 # Check if camera or file has opened successfully
 if cap.isopen() is False:
     trc.error("Error opening video stream or file")
     trc.stop()
     exit
+"""
 
 # Get current width and height of frame
 width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -282,10 +292,8 @@ while cap.more():
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernelCl)
         mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernelCl)
     except:
-        trc.info({"line#": get_linenumber(), "made it here": 4})
         trc.info({"line#": get_linenumber(),
-                  "total count": {"enter": cnt_up, "exit": cnt_down}})
-        trc.stop()
+                  "EXCEPTION": {"enter": cnt_up, "exit": cnt_down}})
         break
     #################
     #    CONTOURS   #
