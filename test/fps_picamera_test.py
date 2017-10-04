@@ -96,16 +96,14 @@ time.sleep(2.0)
 fps = FPS().start()
 
 # loop over some frames...this time using the threaded stream
-i = 0
-while i < args["num_frames"]:
+while fps._numFrames < args["num_frames"]:
     # grab the frame from the threaded video stream and resize it
     # to have a maximum width of 400 pixels
-    i += 1
     frame = vs.read()
     frame = imutils.resize(frame, width=400)
 
     # check to see if the frame should be displayed to our screen
-    if args["display"]:
+    if args["display"] > 0:
         cv2.imshow("Frame", frame)
         key = cv2.waitKey(1) & 0xFF
         if chr(key & 255) == 'q' or key == 27:
