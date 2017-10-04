@@ -16,7 +16,7 @@ import vstream
 import myperson
 import argparse
 import datetime
-import tracemess                          # for debugging
+import tracemess                                      # for debugging
 from tracemess import get_linenumber
 from imutils.video import FPS
 
@@ -29,12 +29,12 @@ defaults = {
     "file_recP": "recordingP.mp4",                    # video after processing
     "warmup_time": 1.5,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
-    "color_blue": (255, 0, 0),
-    "color_green": (0, 255, 0),
-    "color_red": (0, 0, 255),
-    "color_white": (255, 255, 255),
-    "color_black": (0, 0, 0),
-    "font": cv2.FONT_HERSHEY_SIMPLEX,
+    "color_blue": (255, 0, 0),                        # opencv BGR color
+    "color_green": (0, 255, 0),                       # opencv BGR color
+    "color_red": (0, 0, 255),                         # opencv BGR color
+    "color_white": (255, 255, 255),                   # opencv BGR color
+    "color_black": (0, 0, 0),                         # opencv BGR color
+    "font": cv2.FONT_HERSHEY_SIMPLEX,                 # font used on frame
     "max_p_age": 5
 }
 
@@ -89,14 +89,6 @@ def calc_lines(capture):
     pts_L4 = numpy.array([pt7, pt8], numpy.int32)
     pts_L4 = pts_L4.reshape((-1, 1, 2))
 
-    trc.info({"line#": get_linenumber(),
-              "frame": {"width": w, "height": h,
-                        "frameArea": frameArea, "areaTH": areaTH}})
-
-    trc.info({"line#": get_linenumber(), "line_values": {"line_up": line_up,
-              "line_down": line_down, "up_limit": up_limit,
-              "down_limit": down_limit}})
-
     return line_up, line_down, up_limit, down_limit, areaTH, pts_L1, pts_L2, pts_L3, pts_L4
 
 
@@ -137,7 +129,7 @@ ap.add_argument("-p", "--picamera",
 args = vars(ap.parse_args())
 
 # create trace message object
-trc = tracemess.TraceMess(args["file_in"])
+trc = tracemess.TraceMess(args["file_in"]).start()
 
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
@@ -149,8 +141,7 @@ cap = vstream.VStream(source=args["source"], path=args["file_in"],
 # wait while camera warms up and VStream initialize
 time.sleep(args["warmup_time"])
 
-trc.info({"line#": get_linenumber(), "source": args["source"],
-          "path": args["file_in"], "src": args["video_device"]})
+trc.info({"line#": get_linenumber(), "source": args["source"], "path": args["file_in"], "src": args["video_device"]})
 
 """
 # Check if camera or file has opened successfully
@@ -208,9 +199,6 @@ line_down = int(3*(h/5))    # draw red line 3/5 from the bottom
 
 up_limit = int(1*(h/5))
 down_limit = int(4*(h/5))
-
-trc.info({"line#": get_linenumber(), "area threshold": areaTH,
-          "lines": {"red y axis": str(line_down), "blue y axis": str(line_up)}})
 
 # red line coordinates calculations
 pt1 = [0, line_down]
@@ -273,10 +261,11 @@ while cap.more():
 
     for i in persons:
         i.age_one()   # age every person one frame
+
+    trc.time_start({"line#": get_linenumber()})
     #########################
     #   PRE-PROCESSING      #
     #########################
-
     # Apply subtraction of background
     fgmask = fgbg.apply(frame)
     fgmask2 = fgbg.apply(frame)
@@ -298,6 +287,8 @@ while cap.more():
     #################
     #    CONTOURS   #
     #################
+    trc.time_stop({"line#": get_linenumber()})
+    trc.time_elapsed()
 
     # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.                #noqa
     _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)        #noqa
@@ -422,6 +413,7 @@ while cap.more():
 
     # update the frame count
     fps.update()
+    trc.info({"frame no.": fps._numFrames})
 
     # pre-set ESC or 'q' to exit
     k = cv2.waitKey(1) & 0xFF
