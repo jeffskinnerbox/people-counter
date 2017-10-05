@@ -38,7 +38,7 @@ class TraceMess:
 
     def start(self, on=True):
         if on is False:
-            return
+            return self
 
         self.run_stamp["run-status"] = "start"
         self.run_stamp["run-time"] = time.strftime("%Y-%m-%d %H:%M:%S",

@@ -11,7 +11,6 @@ import os
 import cv2
 import time
 import numpy
-import imutils
 import vstream
 import myperson
 import argparse
@@ -90,7 +89,8 @@ def calc_lines(capture):
     pts_L4 = numpy.array([pt7, pt8], numpy.int32)
     pts_L4 = pts_L4.reshape((-1, 1, 2))
 
-    return line_up, line_down, up_limit, down_limit, areaTH, pts_L1, pts_L2, pts_L3, pts_L4
+    return line_up, line_down, up_limit, down_limit, areaTH,\
+        pts_L1, pts_L2, pts_L3, pts_L4
 
 
 # construct the argument parse and parse the arguments
@@ -130,7 +130,8 @@ ap.add_argument("-p", "--picamera",
 args = vars(ap.parse_args())
 
 # create object to manage trace messages
-trc = tracemess.TraceMess(on=defaults["trace"], src=args["source"]).start()
+trc = tracemess.TraceMess(on=defaults["trace"],
+                          src=args["source"]).start(on=defaults["trace"])
 
 # Set Input and Output Counters
 cnt_up = initials["cnt_up"]
@@ -143,7 +144,8 @@ cap = vstream.VStream(source=args["source"], path=args["file_in"],
 time.sleep(args["warmup_time"])
 
 trc.info({"line#": get_linenumber(), "source": args["source"],
-    "path": args["file_in"], "src": args["video_device"]}, on=defaults["trace"])
+          "path": args["file_in"], "src": args["video_device"]},
+         on=defaults["trace"])
 
 """
 # Check if camera or file has opened successfully
@@ -160,7 +162,7 @@ trc.info({"line#": get_linenumber(),
           "frame": {"width": width, "height": height,
                     "fps": cap.get(cv2.CAP_PROP_FPS),
                     "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}},
-          on=defaults["trace"])
+         on=defaults["trace"])
 
 # Define the codec and create VideoWriter object
 # fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -187,7 +189,8 @@ for i in range(19):
     print(i, cap.get(i))
 """
 
-line_up, line_down, up_limit, down_limit, areaTH, pts_L1, pts_L2, pts_L3, pts_L4 = calc_lines(cap)
+line_up, line_down, up_limit, down_limit, areaTH,\
+    pts_L1, pts_L2, pts_L3, pts_L4 = calc_lines(cap)
 """
 w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
@@ -286,7 +289,7 @@ while cap.more():
     except:
         trc.info({"line#": get_linenumber(),
                   "EXCEPTION": {"enter": cnt_up, "exit": cnt_down}},
-                  on=defaults["trace"])
+                 on=defaults["trace"])
         break
     #################
     #    CONTOURS   #
@@ -321,10 +324,10 @@ while cap.more():
                         if i.going_UP(line_down, line_up) is True:
                             cnt_up += 1
                             trc.info({"line#": get_linenumber(),
-                                      "object": {"id": i.getId(),
-                                      "direction": "up",
-                                      "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                                            time.gmtime())}}, on=defaults["trace"])
+                                "object": {"id": i.getId(),
+                                "direction": "up",
+                                "time": time.strftime("%Y-%m-%d %H:%M:%S",
+                                time.gmtime())}}, on=defaults["trace"])
                             trc.feature({"line#": get_linenumber(),
                                     "total count": {"enter": cnt_up,
                                     "exit": cnt_down,
