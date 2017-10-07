@@ -22,7 +22,9 @@ from imutils.video import FPS
 
 # default parameters when stating the algorithm
 defaults = {
-    "trace": True,                                    # turn on trace messging
+    "trace": False,                                    # turn on trace messging
+    "show": True,                                    # turn on video display of real-time image
+    "video_write_off": 'store_false',                                    # turn on trace messging
     "path": "/home/pi/Videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
@@ -30,6 +32,7 @@ defaults = {
     "warmup_time": 1.5,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
     "color_blue": (255, 0, 0),                        # opencv BGR color
+#    "resolution"=(640, 480),
     "color_green": (0, 255, 0),                       # opencv BGR color
     "color_red": (0, 0, 255),                         # opencv BGR color
     "color_white": (255, 255, 255),                   # opencv BGR color
@@ -124,9 +127,12 @@ ap.add_argument("-w", "--warmup_time",
                 required=False,
                 type=int,
                 default=defaults["warmup_time"])
-ap.add_argument("-p", "--picamera",
-                help="include if the Raspberry Pi Camera should be used",
+ap.add_argument("-p", "--video_write_off",
+                help="turn off the writing of video files",
                 action='store_true')
+ap.add_argument("-x", "--show",
+                help="show the real-time video",
+                action='store_false')
 args = vars(ap.parse_args())
 
 # create object to manage trace messages
@@ -138,6 +144,9 @@ cnt_up = initials["cnt_up"]
 cnt_down = initials["cnt_down"]
 
 cap = vstream.VStream(source=args["source"], path=args["file_in"],
+                      #resolution=(640, 480),
+                      resolution=(320, 240),
+                      #resolution=(160, 128),
                       src=args["video_device"])
 
 # wait while camera warms up and VStream initialize
@@ -164,20 +173,21 @@ trc.info({"line#": get_linenumber(),
                     "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}},
          on=defaults["trace"])
 
-# Define the codec and create VideoWriter object
-# fourcc = cv2.VideoWriter_fourcc(*'XVID')
-fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
-video_recP = cv2.VideoWriter(args["file_recP"],
-                             fourcc, 20.0, (int(width), int(height)))
+if args["video_write_off"] == False:
+    # Define the codec and create VideoWriter object
+    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
+    fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+    video_recP = cv2.VideoWriter(args["file_recP"],
+                                fourcc, 20.0, (int(width), int(height)))
 
-# Define the codec and create VideoWriter object
-# fourcc = cv2.VideoWriter_fourcc(*'XVID')
-fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
-video_rec = cv2.VideoWriter(args["file_rec"],
+    # Define the codec and create VideoWriter object
+    # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+    fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
+    fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+    video_rec = cv2.VideoWriter(args["file_rec"],
                             fourcc, 20.0, (int(width), int(height)))
 """
 # Video properties
@@ -252,11 +262,14 @@ fps = FPS().start()
 
 # loop over the frames from the video stream or file
 while cap.more():
+    trc.time_start(mess="{'line#': get_linenumber()}", on=defaults["trace"])
+
     # grab the frame from the threaded video file stream
     frame = cap.read()
 
     # write the frame to a file, as capture and without processing
-    video_rec.write(frame)
+    if args["video_write_off"] == False:
+        video_rec.write(frame)
 
     # NOTE: CAN'T DO THIS AFTER CALCULATING LINES
     # grab the frame from the threaded video file stream, resize it
@@ -268,7 +281,6 @@ while cap.more():
     for i in persons:
         i.age_one()   # age every person one frame
 
-    trc.time_start(mess="{'line#': get_linenumber()}", on=defaults["trace"])
     #########################
     #   PRE-PROCESSING      #
     #########################
@@ -280,9 +292,11 @@ while cap.more():
     try:
         ret, imBin = cv2.threshold(fgmask, 200, 255, cv2.THRESH_BINARY)
         ret, imBin2 = cv2.threshold(fgmask2, 200, 255, cv2.THRESH_BINARY)
+
         # Opening (erode-> dilate) to remove noise
         mask = cv2.morphologyEx(imBin, cv2.MORPH_OPEN, kernelOp)
         mask2 = cv2.morphologyEx(imBin2, cv2.MORPH_OPEN, kernelOp)
+
         # Closing (dilate -> erode) to join white regions
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernelCl)
         mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernelCl)
@@ -294,8 +308,6 @@ while cap.more():
     #################
     #    CONTOURS   #
     #################
-    trc.time_stop(mess="{'line#': get_linenumber()}", on=defaults["trace"])
-    trc.time_elapsed(on=defaults["trace"])
 
     # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.                #noqa
     _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)        #noqa
@@ -412,20 +424,28 @@ while cap.more():
     cv2.putText(frame, ts, (10, frame.shape[0] - 10),
                 defaults["font"], 0.35, defaults["color_red"], 1)
 
-    cv2.imshow('Frame', frame)
-    # cv2.imshow('Mask', mask)
+    if args["show"] == True:
+        cv2.imshow('Frame', frame)
+        #cv2.imshow('Frame', cv2.resize(frame, (640, 480)))
+
+        # show the mask
+        # cv2.imshow('Mask', mask)
 
     # write the frame after it has been processed
-    video_recP.write(frame)
+    if args["video_write_off"] == False:
+        video_recP.write(frame)
+
+    # pre-set ESC or 'q' to exit
+    k = cv2.waitKey(30) & 0xFF
+    if k == 27 or k == ord('q'):
+        break
 
     # update the frame count
     fps.update()
     trc.info({"frame no.": fps._numFrames}, on=defaults["trace"])
 
-    # pre-set ESC or 'q' to exit
-    k = cv2.waitKey(1) & 0xFF
-    if k == 27 or k == ord('q'):
-        break
+    trc.time_stop(mess="{'line#': get_linenumber()}", on=defaults["trace"])
+    trc.time_elapsed(on=defaults["trace"])
 
 # stop the timer and display FPS information
 fps.stop()
@@ -435,6 +455,7 @@ print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 # do the final cleanup before exiting
 trc.stop(on=defaults["trace"])
 cap.stop()
-video_rec.release()
-video_recP.release()
+if args["video_write_off"] == False:
+    video_rec.release()
+    video_recP.release()
 cv2.destroyAllWindows()

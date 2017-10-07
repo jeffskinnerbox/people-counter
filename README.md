@@ -4,6 +4,7 @@ Version:      0.1.0
 -->
 
 To measure performance of threading, use `mpstat -P ALL 1`.
+To measure the Internet speed, use https://fast.com/
 
 # My Jupyter Notebooks
 My expanding set of Jupyter Notebooks.

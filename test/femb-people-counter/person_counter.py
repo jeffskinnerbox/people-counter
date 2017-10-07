@@ -2,6 +2,11 @@ import numpy as np
 import cv2
 import Person
 import time
+import tracemess                                      # for debugging
+from tracemess import get_linenumber
+
+# create object to manage trace messages
+trc = tracemess.TraceMess(on=True, src=None).start(on=True)
 
 # Contadores de entrada y salida
 cnt_up = 0
@@ -9,7 +14,7 @@ cnt_down = 0
 
 # Fuente de video
 # cap = cv2.VideoCapture(0)
-cap = cv2.VideoCapture('/home/jeff/Videos/People-Walking-Shot-From-Above.mp4')
+cap = cv2.VideoCapture('/home/pi/Videos/People-Walking-Shot-From-Above.mp4')
 
 # Check if camera opened successfully
 if (cap.isOpened() is False):
@@ -90,6 +95,7 @@ while(cap.isOpened()):
 
     for i in persons:
         i.age_one()   # age every person one frame
+    trc.time_start(mess="{'line#': get_linenumber()}", on=True)
     #########################
     #   PRE-PROCESAMIENTO   #
     #########################
@@ -116,6 +122,8 @@ while(cap.isOpened()):
     #################
     #   CONTORNOS   #
     #################
+    trc.time_stop(mess="{'line#': get_linenumber()}", on=True)
+    trc.time_elapsed(on=True)
 
     # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.  #noqa
     _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)        #noqa

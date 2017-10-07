@@ -27,19 +27,21 @@ import cv2
 class VStream:
     vsource = None
 
-    def __init__(self, source, path=None, queueSize=128, src=0,
-                 resolution=(320, 240), framerate=32):
-        # initialize the video stream along with the boolean
+    def __init__(self, source='file', path=None, queueSize=128, src=0,
+                 resolution=(640, 480), framerate=30):
+        # initialize the video stream along with the boolean:w
+
         # used to indicate if the thread should be stopped or not
         self.vsource = source
-        if source == 'file':
-            self.stream = FileVideoStream(path, queueSize).start()
-        elif source == 'usbcamera':
+        if self.vsource == 'file':
+            self.stream = FileVideoStream(path, queueSize=queueSize).start()
+        elif self.vsource == 'usbcamera':
             self.stream = VideoStream(src=src, usePiCamera=False,
                                       resolution=resolution,
                                       framerate=framerate).start()
-        elif source == 'picamera':
-            self.stream = VideoStream(usePiCamera=True, resolution=resolution,
+        elif self.vsource == 'picamera':
+            self.stream = VideoStream(src=src, usePiCamera=True,
+                                      resolution=resolution,
                                       framerate=framerate).start()
 
     def start(self):
@@ -66,6 +68,28 @@ class VStream:
         # indicate that the thread should be stopped
         self.stream.stop()
 
+    def isopen(self):
+        # check if the camera or file is already open
+        if self.vsource == 'picamera':
+            #return self.stream.stream._check_camera_open()
+            return True
+        else:
+            return self.stream.stream.isOpened()
+
+    def get(self, obj):
+        # acess cv2.VideoCapture.get() within the FileVideoStream class
+        if self.vsource == 'picamera':
+            if obj == cv2.CAP_PROP_FRAME_WIDTH:      # Width of the frames in the video stream
+                return 640
+            elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # Height of the frames in the video stream
+                return 480
+            elif obj == cv2.CAP_PROP_FPS:            # Frame rate
+                return 30
+            elif obj == cv2.CAP_PROP_FRAME_COUNT:    # Number of frames in the video file
+                return 1
+        else:
+            return self.stream.stream.get(obj)
+
 
 # construct the argument parse and parse the arguments
 ap = argparse.ArgumentParser()
@@ -73,15 +97,15 @@ ap.add_argument("-s", "--source",
                 help="include if the Raspberry Pi Camera should be used",
                 required=False,
                 choices=['file', 'usbcamera', 'picamera'],
-                default='usbcamera')
+                default='file')
 ap.add_argument("-f", "--file_input",
                 help="instead of a camera, use a file as your input stream",
                 required=False,
-                default="/home/jeff/Videos/People-Walking-Shot-From-Above.mp4")
+                default="/home/pi/Videos/People-Walking-Shot-From-Above.mp4")
 args = vars(ap.parse_args())
 
 # initialize the video stream
-vs = VStream(args["source"], args["file_input"])
+vs = VStream(source=args["source"], path=args["file_input"])
 
 # wait while camera warms up and things initialize
 time.sleep(1.0)

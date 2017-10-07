@@ -32,7 +32,7 @@ ap.add_argument("-s", "--source",
 ap.add_argument("-f", "--file_input",
                 help="instead of a camera, use a file as your input stream",
                 required=False,
-                default="/home/jeff/Videos/People-Walking-Shot-From-Above.mp4")
+                default="/home/pi/Videos/People-Walking-Shot-From-Above.mp4")
 args = vars(ap.parse_args())
 
 # initialize the video stream and allow the cammera sensor to warmup
