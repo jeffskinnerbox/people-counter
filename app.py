@@ -3,6 +3,9 @@
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
 # Version:      0.3.0
 #
+# USAGE:
+#     python3 app.py -s picamera  -  using pi camera and no trace messages
+
 # Source: "People Counter" series of blog by Federico Mejia Barajas
 #         http://www.femb.com.mx/people-counter/people-counter-9-counting/
 
@@ -34,7 +37,7 @@ defaults = {
     "warmup_time": 1.5,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
     "color_blue": (255, 0, 0),                        # opencv BGR color
-#    "resolution"=(640, 480),
+    "resolution": [(640, 480)],
     "color_green": (0, 255, 0),                       # opencv BGR color
     "color_red": (0, 0, 255),                         # opencv BGR color
     "color_white": (255, 255, 255),                   # opencv BGR color
@@ -98,6 +101,14 @@ def calc_lines(capture):
         pts_L1, pts_L2, pts_L3, pts_L4
 
 
+# https://stackoverflow.com/questions/9978880/python-argument-parser-list-of-list-or-tuple-of-tuples
+def rez(s):
+    try:
+        x, y = map(int, s.split(','))
+        return (x, y)
+    except:
+        raise argparse.ArgumentTypeError("Resolution must be expressed as x,y")
+
 
 def ArgParser():
     # argparse – Command line option and argument parsing - https://pymotw.com/2/argpars
@@ -109,7 +120,14 @@ def ArgParser():
                                  'This is the MassMutual Raspberry Pi \
                                  + OpenCV people counter')
 
-    # store actions - store_true / store_false
+    # store actions - tuple
+    ap.add_argument("-z", "--resolution",
+                    help="resolution of the process imaged",
+                    nargs=1,
+                    type=rez,
+                    default=defaults["resolution"])
+
+    # store actions
     ap.add_argument("-s", "--source",
                     help="include if the Raspberry Pi Camera should be used",
                     action='store',
@@ -449,8 +467,9 @@ if __name__ == '__main__':
 
     cap = vstream.VStream(source=args["source"], path=args["file_in"],
                           #resolution=(640, 480),
-                          resolution=(320, 240),
+                          #resolution=(320, 240),
                           #resolution=(160, 128),
+                          resolution=args["resolution"][0],
                           src=args["video_device"])
 
     # wait while camera warms up and VStream initialize
