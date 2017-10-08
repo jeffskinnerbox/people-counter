@@ -1,14 +1,26 @@
+#!/usr/bin/python3
+#
+# Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
+# Version:      0.3.0
+#
 # Source: https://pythonprogramming.net/mog-background-reduction-python-opencv-tutorial/
 
 import numpy as np
 import cv2
+import os
 
-# ######################## 1st Pass
+# update your defaults based on the box your running on
+if os.uname()[1] == "desktop":
+    path = "/home/jeff/Videos/balls-bouncing.mp4"
+elif os.uname()[1] == "BlueRpi":
+    path = "/home/pi/Videos/balls-bouncing.mp4"
 
-cap = cv2.VideoCapture('/home/pi/Videos/People-Walking-Shot-From-Above.mp4')
+# ################################## 1st Pass ##################################
+
+cap = cv2.VideoCapture(path)
 fgbg = cv2.createBackgroundSubtractorMOG2()
 
-whilei True:
+while True:
     ret, frame = cap.read()
 
     fgmask = fgbg.apply(frame)
@@ -25,9 +37,9 @@ whilei True:
 cap.release()
 cv2.destroyAllWindows()
 
-# ######################## 2nd Pass
+# ################################## 2nd Pass ##################################
 
-cap = cv2.VideoCapture('/home/pi/Videos/People-Walking-Shot-From-Above.mp4')
+cap = cv2.VideoCapture(path)
 
 # Background subtraction
 fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=True)

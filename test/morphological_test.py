@@ -1,9 +1,21 @@
+#!/usr/bin/python3
+#
+# Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
+# Version:      0.3.0
+#
 
 # Morphological Transformations OpenCV Python Tutorial -https://pythonprogramming.net/morphological-transformation-python-opencv-tutorial/
 
 import cv2
 import numpy as np
 
+import os
+
+# update your defaults based on the box your running on
+if os.uname()[1] == "desktop":
+    path = "/home/jeff/Videos/balls-bouncing.mp4"
+elif os.uname()[1] == "BlueRpi":
+    path = "/home/pi/Videos/balls-bouncing.mp4"
 cap = cv2.VideoCapture(0)
 
 while(1):
@@ -15,16 +27,16 @@ while(1):
     upper_red = np.array([255,255,180])
 
     mask = cv2.inRange(hsv, lower_red, upper_red)
-    res = cv2.bitwise_and(frame,frame, mask= mask)
+    res = cv2.bitwise_and(frame, frame, mask= mask)
 
-    kernel = np.ones((5,5),np.uint8)
-    erosion = cv2.erode(mask,kernel,iterations = 1)
-    dilation = cv2.dilate(mask,kernel,iterations = 1)
+    kernel = np.ones((5,5), np.uint8)
+    erosion = cv2.erode(mask, kernel, iterations = 1)
+    dilation = cv2.dilate(mask, kernel, iterations = 1)
 
-    cv2.imshow(Original,frame)
-    cv2.imshow(Mask,mask)
-    cv2.imshow(Erosion,erosion)
-    cv2.imshow(Dilation,dilation)
+    cv2.imshow(Original, frame)
+    cv2.imshow(Mask, mask)
+    cv2.imshow(Erosion, erosion)
+    cv2.imshow(Dilation, dilation)
 
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
