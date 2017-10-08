@@ -8,6 +8,13 @@
 
 # Source: "People Counter" series of blog by Federico Mejia Barajas
 #         http://www.femb.com.mx/people-counter/people-counter-9-counting/
+# STYLE
+# David Goodger (in "Code Like a Pythonista" here) describes the PEP 8 recommendations as follows:
+# http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#pep-8-style-guide-for-python-code
+#
+# joined_lower for functions, methods, attributes, variables
+# joined_lower or ALL_CAPS for constants
+# StudlyCaps for classes
 
 
 import os
@@ -25,11 +32,11 @@ from imutils.video import FPS
 
 # default parameters when stating the algorithm
 defaults = {
-    "version": "0.3.0",
-    "platform": os.uname(),
-    "trace": False,                                   # turn on trace messging
+    "version": "0.3.0",                               # this algorithm version number
+    "platform": os.uname(),                           # host name your running on
+    "trace": False,                                   # turn on trace messaging
     "show": True,                                     # turn on video display of real-time image
-    "video_write_off": 'store_false',                 # turn on trace messging
+    "video_write_off": 'store_false',                 # turn on trace messaging
     "path": "/home/pi/Videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
@@ -37,7 +44,7 @@ defaults = {
     "warmup_time": 1.5,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
     "color_blue": (255, 0, 0),                        # opencv BGR color
-    "resolution": [(640, 480)],
+    "resolution": [(640, 480)],                       # image resolution for processing
     "color_green": (0, 255, 0),                       # opencv BGR color
     "color_red": (0, 0, 255),                         # opencv BGR color
     "color_white": (255, 255, 255),                   # opencv BGR color
@@ -62,52 +69,63 @@ initials = {
 def calc_lines(capture):
     w = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
     h = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    print("\nw =", w, "  h =", h)
 
     frameArea = h*w             # area of the frame
     areaTH = frameArea/250
+    print("\nframeArea =", frameArea, "  areaTH =", areaTH)
 
     # Input / output lines
     line_up = int(2*(h/5))      # draw blue line 2/5 from the bottom
     line_down = int(3*(h/5))    # draw red line 3/5 from the bottom
+    print("\nline_up =", line_up, "  line_down =", line_down)
 
     up_limit = int(1*(h/5))
     down_limit = int(4*(h/5))
+    print("\nup_limit =", up_limit, "  down_limit =", down_limit)
 
     # red line coordinates calculations
     pt1 = [0, line_down]
     pt2 = [w, line_down]
     pts_L1 = numpy.array([pt1, pt2], numpy.int32)
     pts_L1 = pts_L1.reshape((-1, 1, 2))
+    print("\nRed Line: pts_L1", pts_L1)
 
     # blue line coordinates calculations
     pt3 = [0, line_up]
     pt4 = [w, line_up]
     pts_L2 = numpy.array([pt3, pt4], numpy.int32)
     pts_L2 = pts_L2.reshape((-1, 1, 2))
+    print("Blue Line: pts_L2", pts_L2)
 
     # white line coordinates calculations
     pt5 = [0, up_limit]
     pt6 = [w, up_limit]
     pts_L3 = numpy.array([pt5, pt6], numpy.int32)
     pts_L3 = pts_L3.reshape((-1, 1, 2))
+    print("White Line: pts_L3", pts_L3)
 
     # black line coordinates calculations
     pt7 = [0, down_limit]
     pt8 = [w, down_limit]
     pts_L4 = numpy.array([pt7, pt8], numpy.int32)
     pts_L4 = pts_L4.reshape((-1, 1, 2))
+    print("Black Line: pts_L4", pts_L4)
 
     return line_up, line_down, up_limit, down_limit, areaTH,\
         pts_L1, pts_L2, pts_L3, pts_L4
 
 
-# https://stackoverflow.com/questions/9978880/python-argument-parser-list-of-list-or-tuple-of-tuples
 def rez(s):
+    """ This function accepts two comma separated values, splits them,
+    and returns them as a 2-tuple.  There must be no white space
+    before or after the comma. """
     try:
         x, y = map(int, s.split(','))
         return (x, y)
     except:
-        raise argparse.ArgumentTypeError("Resolution must be expressed as x,y")
+        raise argparse.ArgumentTypeError("parameter for -r, --resolution \
+                must be expressed as x,y")
 
 
 def ArgParser():
@@ -120,14 +138,14 @@ def ArgParser():
                                  'This is the MassMutual Raspberry Pi \
                                  + OpenCV people counter')
 
-    # store actions - tuple
+    # store actions - tuple parameters
     ap.add_argument("-z", "--resolution",
                     help="resolution of the process imaged",
                     nargs=1,
                     type=rez,
                     default=defaults["resolution"])
 
-    # store actions
+    # store actions - single parameter
     ap.add_argument("-s", "--source",
                     help="include if the Raspberry Pi Camera should be used",
                     action='store',
@@ -181,7 +199,7 @@ def ArgParser():
     return ap.parse_args()
 
 
-def PeopleCounter(cap, cnt_up, cnt_down):
+def PeopleCounter(cap, cnt_up=0, cnt_down=0):
     """
     # Video properties
     cap.set(3, 160) # Width
