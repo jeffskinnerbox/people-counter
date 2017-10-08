@@ -1,6 +1,6 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.1.0
+Version:      0.3.0
 -->
 
 
@@ -40,53 +40,74 @@ Change to the `jupyter-notebooks` directory, and initialize it as a git reposito
 Add all your source files, create a `README.md` file
 and create the file `.gitignore` like this:
 
-    ### ------------------------- Project Specific ------------------------- ###
+```bash
+### ------------------------- Project Specific ------------------------- ###
 
-    ### Videos & Images ###
-    *.mp4
-    *.avi
-    *.png
-    *.jpg
-    *.tif
-    *.gif
+### Videos & Images ###
+*.mp4
+*.avi
+*.webm
+*.mkv
+*.png
+*.jpg
+*.tif
+*.gif
 
-    ### ----------------------------- General ------------------------------ ###
+### Jupyter files ###
+Untitled.ipynb
 
-    ### Compiled Source ###
-    *.pyc
-    *.com
-    *.class
-    *.dll
-    *.exe
-    *.o
-    *.so
+### ----------------------------- General ------------------------------ ###
 
-    ### Packages ###
-    *.7z
-    *.dmg
-    *.gz
-    *.iso
-    *.jar
-    *.rar
-    *.tar
-    *.zip
+### Compiled Source ###
+*.pyc
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
 
-    ### Logs & Databases ###
-    *.log
-    *.sql
-    *.sqlite
+### Packages ###
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
 
-    ### OS Generated Files ###
-    *.out
-    *.swp
-    .DS_Store
-    .DS_Store?
-    ._*
-    .Spotlight-V100
-    .Trashes
-    Icon?
-    ehthumbs.db
-    Thumbs.db
+### backup file ###
+*.backup
+
+### Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+
+### Logs & Databases ###
+*.log
+*.sql
+*.sqlite
+.ipynb_checkpoints
+.ropeproject
+__pycache__
+
+### OS Generated Files ###
+*.out
+*.swp
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+```
 
 Now commit all these files to the git repository:
 
