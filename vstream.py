@@ -1,6 +1,13 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.2.0
+# Version:      0.3.0
+#
+# Source: "Faster video file FPS with cv2.VideoCapture and OpenCV" blog by Adrian Rosebrock
+#         https://www.pyimagesearch.com/2017/02/06/faster-video-file-fps-with-cv2-videocapture-and-opencv
+#         http://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/
+#         http://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/
+#         https://github.com/jrosebr1/imutils/tree/master/imutils/video
+
 
 # import the necessary packages
 import cv2

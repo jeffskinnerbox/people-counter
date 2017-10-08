@@ -1,6 +1,10 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.2.0
+# Version:      0.3.0
+#
+# Source: "People Counter" series of blog by Federico Mejia Barajas
+#         http://www.femb.com.mx/people-counter/people-counter-9-counting/
+
 
 from random import randint
 
@@ -58,7 +62,7 @@ class MyPerson:
     def going_UP(self, mid_start, mid_end):
         if len(self.tracks) >= 2:
             if self.state == '0':
-                if self.tracks[-1][1] < mid_end and self.tracks[-2][1] >= mid_end:                       #noqa
+                if self.tracks[-1][1] < mid_end and self.tracks[-2][1] >= mid_end:
                     state = '1'
                     self.dir = 'up'
                     return True
@@ -70,7 +74,7 @@ class MyPerson:
     def going_DOWN(self, mid_start, mid_end):
         if len(self.tracks) >= 2:
             if self.state == '0':
-                if self.tracks[-1][1] > mid_start and self.tracks[-2][1] <= mid_start:                   #noqa
+                if self.tracks[-1][1] > mid_start and self.tracks[-2][1] <= mid_start:
                     state = '1'
                     self.dir = 'down'
                     return True
