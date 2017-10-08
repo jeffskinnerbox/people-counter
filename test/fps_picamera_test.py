@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.2.0
+# Version:      0.3.0
 #
 # USAGE
 #    python fps_picamera_test.py  -  just report the mesurements
@@ -10,6 +10,10 @@
 # SOURCE
 #    "Increasing Raspberry Pi FPS with Python and OpenCV"
 #    https://www.pyimagesearch.com/2015/12/28/increasing-raspberry-pi-fps-with-python-and-opencv/           #noqa
+#
+# PURPOSE
+#    This script compare the runtime and frame rate of processing a pi camera
+#    when using Adrian Rosebrock's imutils process threading utilities.
 
 
 # import the necessary packages
