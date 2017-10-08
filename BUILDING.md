@@ -1,6 +1,6 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.1.0
+Version:      0.3.0
 -->
 
 # MassMutual People Counting Build Process
@@ -818,6 +818,10 @@ This needs to be fixed:
 cd /usr/local/lib/python3.5/dist-packages/
 sudo mv cv2.cpython-35m-x86_64-linux-gnu.so cv2.so
 ```
+
+# Other Things
+* [Installing Keras with TensorFlow backend](https://www.pyimagesearch.com/2016/11/14/installing-keras-with-tensorflow-backend/)
+* [Install dlib on the Raspberry Pi](https://www.pyimagesearch.com/2017/05/01/install-dlib-raspberry-pi/)
 
 
 
