@@ -1,6 +1,6 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.1.0
+Version:      0.3.0
 -->
 
 ![Open Source Logo][logo]
@@ -35,6 +35,7 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 * [The MIT License (MIT)][mit]
 * [Free Software Foundation][fsf]
 * [GNU General Public License (GPL)][gpl]
+* [Boost Software License][boost]
 
 Also see ["About Open Source Licenses"][osl]
 and ["Open source licensing: What every technologist should know"][01]
@@ -51,3 +52,4 @@ I find the technical stuff sufficiently challenging, who needs all this legal mu
 [gpl]:http://www.gnu.org/licenses/gpl.html
 [osl]:http://opensource.org/licenses
 [logo]:http://opensource.org/trademarks/opensource/OSI-logo-100x117.png
+[boost]:http://dlib.net/license.html
