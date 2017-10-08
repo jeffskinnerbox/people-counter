@@ -163,63 +163,7 @@ def ArgParser():
     return ap.parse_args()
 
 
-if __name__ == '__main__':
-    args = vars(ArgParser())
-
-    # create object to manage trace messages
-    trc = tracemess.TraceMess(defaults["platform"], on=defaults["trace"],
-                              src=args["source"]).start(on=defaults["trace"])
-
-    # Set Input and Output Counters
-    cnt_up = initials["cnt_up"]
-    cnt_down = initials["cnt_down"]
-
-    cap = vstream.VStream(source=args["source"], path=args["file_in"],
-                          #resolution=(640, 480),
-                          resolution=(320, 240),
-                          #resolution=(160, 128),
-                          src=args["video_device"])
-
-    # wait while camera warms up and VStream initialize
-    time.sleep(args["warmup_time"])
-
-    trc.info({"line#": get_linenumber(), "source": args["source"],
-              "path": args["file_in"], "src": args["video_device"]},
-             on=defaults["trace"])
-
-    """
-    # Check if camera or file has opened successfully
-    if cap.isopen() is False:
-        trc.error("Error opening video stream or file")
-        trc.stop()
-        exit
-    """
-
-    # Get current width and height of frame
-    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    trc.info({"line#": get_linenumber(),
-              "frame": {"width": width, "height": height,
-                        "fps": cap.get(cv2.CAP_PROP_FPS),
-                        "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}},
-             on=defaults["trace"])
-
-    if args["video_write_off"] == False:
-        # Define the codec and create VideoWriter object
-        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-        fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
-        video_recP = cv2.VideoWriter(args["file_recP"],
-                                    fourcc, 20.0, (int(width), int(height)))
-
-        # Define the codec and create VideoWriter object
-        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-        fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
-        video_rec = cv2.VideoWriter(args["file_rec"],
-                                fourcc, 20.0, (int(width), int(height)))
+def PeopleCounter(cap, cnt_up, cnt_down):
     """
     # Video properties
     cap.set(3, 160) # Width
@@ -490,6 +434,67 @@ if __name__ == '__main__':
         video_rec.release()
         video_recP.release()
     cv2.destroyAllWindows()
+
+
+if __name__ == '__main__':
+    args = vars(ArgParser())
+
+    # create object to manage trace messages
+    trc = tracemess.TraceMess(defaults["platform"], on=defaults["trace"],
+                              src=args["source"]).start(on=defaults["trace"])
+
+    # Set Input and Output Counters
+    cnt_up = initials["cnt_up"]
+    cnt_down = initials["cnt_down"]
+
+    cap = vstream.VStream(source=args["source"], path=args["file_in"],
+                          #resolution=(640, 480),
+                          resolution=(320, 240),
+                          #resolution=(160, 128),
+                          src=args["video_device"])
+
+    # wait while camera warms up and VStream initialize
+    time.sleep(args["warmup_time"])
+
+    trc.info({"line#": get_linenumber(), "source": args["source"],
+              "path": args["file_in"], "src": args["video_device"]},
+             on=defaults["trace"])
+
+    """
+    # Check if camera or file has opened successfully
+    if cap.isopen() is False:
+        trc.error("Error opening video stream or file")
+        trc.stop()
+        exit
+    """
+
+    # Get current width and height of frame
+    width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+    height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
+    trc.info({"line#": get_linenumber(),
+              "frame": {"width": width, "height": height,
+                        "fps": cap.get(cv2.CAP_PROP_FPS),
+                        "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}},
+             on=defaults["trace"])
+
+    if args["video_write_off"] == False:
+        # Define the codec and create VideoWriter object
+        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
+        fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+        video_recP = cv2.VideoWriter(args["file_recP"],
+                                    fourcc, 20.0, (int(width), int(height)))
+
+        # Define the codec and create VideoWriter object
+        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
+        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
+        fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+        video_rec = cv2.VideoWriter(args["file_rec"],
+                                fourcc, 20.0, (int(width), int(height)))
+
+    PeopleCounter(cap, initials["cnt_up"], initials["cnt_down"])
 
 """
 def main(some_args):
