@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.2.0
+# Version:      0.3.0
 #
-# Source: People Counter blog by Federico Mejia Barajas
+# Source: "People Counter" series of blog by Federico Mejia Barajas
 #         http://www.femb.com.mx/people-counter/people-counter-9-counting/
 
 
@@ -22,9 +22,11 @@ from imutils.video import FPS
 
 # default parameters when stating the algorithm
 defaults = {
-    "trace": False,                                    # turn on trace messging
-    "show": True,                                    # turn on video display of real-time image
-    "video_write_off": 'store_false',                                    # turn on trace messging
+    "version": "0.3.0",
+    "platform": os.uname(),
+    "trace": False,                                   # turn on trace messging
+    "show": True,                                     # turn on video display of real-time image
+    "video_write_off": 'store_false',                 # turn on trace messging
     "path": "/home/pi/Videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
@@ -96,47 +98,72 @@ def calc_lines(capture):
         pts_L1, pts_L2, pts_L3, pts_L4
 
 
-# construct the argument parse and parse the arguments
+
+
+
+# argparse – Command line option and argument parsing - https://pymotw.com/2/argpars
+# argparse — Parser for command-line options, arguments and sub-commands  -https://docs.python.org/3/library/argparse.html
+# Argparse Tutorial - https://docs.python.org/3/howto/argparse.html
+
+# construct the argument parser and parse the arguments
 ap = argparse.ArgumentParser(description='This is the MassMutual Raspberry Pi \
                              + OpenCV people counter')
+
+# store actions - store_true / store_false
 ap.add_argument("-s", "--source",
                 help="include if the Raspberry Pi Camera should be used",
+                action = 'store',
                 required=False,
                 choices=['file', 'usbcamera', 'picamera'],
                 default='file')
 ap.add_argument("-d", "--video_device",
                 help="device number for input video",
+                action = 'store',
                 required=False,
                 type=int,
                 default=defaults["device_no"])
 ap.add_argument("-i", "--file_in",
                 help="path to video file that will be processed",
+                action = 'store',
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_in"])
 ap.add_argument("-o", "--file_recP",
                 help="path to file where the processed video is stored",
+                action = 'store',
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_recP"])
 ap.add_argument("-r", "--file_rec",
                 help="path to file where the unprocessed camera \
                 video will be recorded",
+                action = 'store',
                 required=False,
                 default=defaults["path"] + '/' + defaults["file_rec"])
 ap.add_argument("-w", "--warmup_time",
                 help="number of seconds to wait so camera can warm up",
+                action = 'store',
                 required=False,
                 type=int,
                 default=defaults["warmup_time"])
+
+# switches actions - store_true / store_false
 ap.add_argument("-p", "--video_write_off",
-                help="turn off the writing of video files",
-                action='store_true')
+                help="turn off the writing of video files \
+                (even when file name is provided)",
+                action='store_true',
+                default = False)
 ap.add_argument("-x", "--show",
                 help="show the real-time video",
-                action='store_false')
+                action='store_false',
+                default = True)
+
+# version actions
+ap.add_argument("-v", "--version", action="version",
+                version="%(prog)s " + defaults["version"])
+
 args = vars(ap.parse_args())
 
 # create object to manage trace messages
-trc = tracemess.TraceMess(on=defaults["trace"],
+trc = tracemess.TraceMess(defaults["platform"], on=defaults["trace"],
                           src=args["source"]).start(on=defaults["trace"])
 
 # Set Input and Output Counters
@@ -435,9 +462,9 @@ while cap.more():
     if args["video_write_off"] == False:
         video_recP.write(frame)
 
-    # pre-set ESC or 'q' to exit
+    # pre-set ESC, Ctrl-c or 'q' to exit
     k = cv2.waitKey(30) & 0xFF
-    if k == 27 or k == ord('q'):
+    if k == 27 or k == 99 or k == ord('q'):
         break
 
     # update the frame count
@@ -459,3 +486,46 @@ if args["video_write_off"] == False:
     video_rec.release()
     video_recP.release()
 cv2.destroyAllWindows()
+
+"""
+def main(some_args):
+    do_stuff...
+
+def parse_arguments():
+    argument_parse_code
+    return arguments
+
+if __name__ == '__main__':
+    arguments = parse_arguments()
+    main(*arguments)
+"""
+
+"""
+# other code. . .
+
+def main(name):
+    print('Hello, %s!' % name)
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'Say hello')
+    parser.add_argument('name', help='your name, enter it')
+    args = parser.parse_args()
+
+    main(args.name)
+"""
+
+"""
+def main(foo, bar, baz='spam'):
+    # run with already parsed arguments
+
+if __name__ == '__main__':
+    import sys
+
+    # parse sys.argv[1:] using optparse or argparse or what have you
+
+    main(foovalue, barvalue, **dictofoptions)
+"""
+
+"""
+https://martin-thoma.com/how-to-parse-command-line-arguments-in-python/
+"""
