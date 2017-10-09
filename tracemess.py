@@ -1,14 +1,19 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
 # Version:      0.3.0
+#
+# SOURCES
+#    https://stackoverflow.com/questions/3056048/filename-and-line-number-of-python-script
+#    https://pypi.python.org/pypi/dweepy/
 
 
+import os
 import uuid
 import json
-import ts_dweepy        # https://pypi.python.org/pypi/dweepy/
+import ts_dweepy
 import time
 import datetime
-from inspect import currentframe  # https://stackoverflow.com/questions/3056048/filename-and-line-number-of-python-script
+from inspect import currentframe
 
 
 def get_linenumber():
@@ -24,7 +29,7 @@ class TraceMess:
             "run-id": str(uuid.uuid4()),
             "run-time": time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()),
             "run-status": "init",
-            "run-platform": platform,
+            "run-platform": os.uname()[1],
             "run-source": src,
             "verbose": verbose,
             "timer-start": None,

@@ -346,24 +346,24 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
                             i.updateCoords(cx, cy)
                             if i.going_UP(line_down, line_up) is True:
                                 cnt_up += 1
-                                trc.info({"line#": get_linenumber(),
+                                trc.feature({"line#": get_linenumber(),
                                     "object": {"id": i.getId(),
                                     "direction": "up",
                                     "time": time.strftime("%Y-%m-%d %H:%M:%S",
                                     time.gmtime())}}, on=defaults["trace"])
-                                trc.feature({"line#": get_linenumber(),
+                                trc.info({"line#": get_linenumber(),
                                         "total count": {"enter": cnt_up,
                                         "exit": cnt_down,
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
                                         time.gmtime())}}, on=defaults["trace"])
                             elif i.going_DOWN(line_down, line_up) is True:
                                 cnt_down += 1
-                                trc.info({"line#": get_linenumber(),
+                                trc.feature({"line#": get_linenumber(),
                                         "object": {"id": i.getId(),
                                         "direction": "down",
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
                                         time.gmtime())}}, on=defaults["trace"])
-                                trc.feature({"line#": get_linenumber(),
+                                trc.info({"line#": get_linenumber(),
                                         "total count": {"enter": cnt_up,
                                         "exit": cnt_down,
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
