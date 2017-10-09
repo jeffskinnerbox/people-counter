@@ -67,6 +67,13 @@ class VStream:
         else:
             return self.stream.stream.isOpened()
 
+    def version(self):
+        from pkg_resources import require
+        if self.vsource == 'picamera':
+            return require('picamera')[0].version
+        else:
+            return None
+
     def get(self, obj):
         # acess cv2.VideoCapture.get() within the FileVideoStream class
         if self.vsource == 'picamera':
