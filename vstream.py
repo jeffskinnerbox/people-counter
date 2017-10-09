@@ -36,31 +36,32 @@ class VStream:
                                       framerate=framerate).start()
 
     def start(self):
-        # start a thread to read frames from the file video stream
+        """This start a thread to read frames from the file or video stream"""
         return self.stream.start()
 
     def update(self):
-        # keep looping infinitely until the thread indicator variable is set,
-        # then stop the thread
+        """This will keep looping infinitely until the thread indicator
+        variable is set, which then stops the thread."""
         return self.stream.update()
 
     def read(self):
-        # return next frame in the queue
+        """This returns the next frame in the queue."""
         return self.stream.read()
 
     def more(self):
-        # return True if there are still frames in the queue
+        """This returns True if there are still frames in the queue."""
         if self.vsource == 'file':
             return self.stream.more()
         else:
             return True
 
     def stop(self):
-        # indicate that the thread should be stopped
+        """This request that the video stream be stopped."""
         self.stream.stop()
 
     def isopen(self):
-        # check if the camera or file is already open
+        """Check if the camera or file is already open and
+        retrun True if it is and False otherwise."""
         if self.vsource == 'picamera':
             #return self.stream.stream._check_camera_open()
             return True
@@ -68,6 +69,8 @@ class VStream:
             return self.stream.stream.isOpened()
 
     def version(self):
+        """Return the version number of the camera being used.
+        Only works for the Pi Camera."""
         from pkg_resources import require
         if self.vsource == 'picamera':
             return require('picamera')[0].version
@@ -75,7 +78,7 @@ class VStream:
             return None
 
     def get(self, obj):
-        # acess cv2.VideoCapture.get() within the FileVideoStream class
+        """Access cv2.VideoCapture.get() within the FileVideoStream class"""
         if self.vsource == 'picamera':
             if obj == cv2.CAP_PROP_FRAME_WIDTH:      # Width of the frames in the video stream
                 return 640
