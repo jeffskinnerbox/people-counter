@@ -146,7 +146,8 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
         trc.time_start(mess={"line#": get_linenumber()})
 
         # send a heartbeat when it's time
-        trc.heartbeat("Still alive!!")
+        trc.heartbeat({"text": "Still alive!!", "time":
+                       time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())})
 
         # grab the frame from the threaded video file stream
         frame = cap.read()

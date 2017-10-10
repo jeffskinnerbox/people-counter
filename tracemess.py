@@ -25,8 +25,8 @@ class TraceMess:
 
     def __init__(self, platform, verbose=False, src="not specified"):
         self.trace_on = False
-        self.hb_time = datetime.datetime.now()
         self.hb_freq = 60
+        self.hb_time = datetime.datetime(2000, 1, 1, 1, 1, 1, 1)
         self.run_stamp = {
             "mess-type": "EXEC",
             "run-id": str(uuid.uuid4()),
