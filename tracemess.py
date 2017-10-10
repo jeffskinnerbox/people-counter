@@ -23,7 +23,8 @@ def get_linenumber():
 
 class TraceMess:
 
-    def __init__(self, platform, on=True, verbose=False, src="not specified"):
+    def __init__(self, platform, verbose=False, src="not specified"):
+        self.trace_on = False
         self.run_stamp = {
             "mess-type": "EXEC",
             "run-id": str(uuid.uuid4()),
@@ -37,36 +38,36 @@ class TraceMess:
             "version": "0.3.0"
         }
 
-    def start(self, on=True):
-        if on is False:
-            return self
+    def start(self, on=False):
+        self.trace_on = on
 
         self.run_stamp["run-status"] = "start"
         self.run_stamp["run-time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                                    time.gmtime())
-        if self.run_stamp["verbose"] is True:
-            print(json.dumps(self.run_stamp))
-        else:
-            print(json.dumps({"INFO": {"trace started":
-                                       self.run_stamp["run-time"]}}))
+        if self.trace_on is True:
+            if self.run_stamp["verbose"] is True:
+                print(json.dumps(self.run_stamp))
+            else:
+                print(json.dumps({"INFO": {"trace started":
+                                           self.run_stamp["run-time"]}}))
 
         return self
 
-    def stop(self, on=True):
-        if on is False:
-            return
+    def stop(self):
+        self.trace_on = False
 
         self.run_stamp["run-status"] = "stop"
         self.run_stamp["run-time"] = time.strftime("%Y-%m-%d %H:%M:%S",
                                                    time.gmtime())
-        if self.run_stamp["verbose"] is True:
-            print(json.dumps(self.run_stamp))
-        else:
-            print(json.dumps({"INFO": {"trace stopped":
-                                       self.run_stamp["run-time"]}}))
+        if self.trace_on is True:
+            if self.run_stamp["verbose"] is True:
+                print(json.dumps(self.run_stamp))
+            else:
+                print(json.dumps({"INFO": {"trace stopped":
+                                           self.run_stamp["run-time"]}}))
 
-    def time_start(self, on=True, mess=None):
-        if on is False:
+    def time_start(self, mess=None):
+        if self.trace_on is False:
             return
 
         # start the timer
@@ -80,8 +81,8 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": {"timer-start": t, "mess-text": mess}}))
 
-    def time_stop(self, on=True, mess=None):
-        if on is False:
+    def time_stop(self, mess=None):
+        if self.trace_on is False:
             return
 
         # stop the timer
@@ -95,8 +96,8 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": {"timer-stop": t, "mess-text": mess}}))
 
-    def time_elapsed(self, on=True, mess=None):
-        if on is False:
+    def time_elapsed(self, mess=None):
+        if self.trace_on is False:
             return
 
         # return the total number of seconds between the start and end interval
@@ -111,8 +112,8 @@ class TraceMess:
             print(json.dumps({"INFO": {"timer-interval": t,
                                        "mess-text": mess}}))
 
-    def info(self, mess, on=True):
-        if on is False:
+    def info(self, mess):
+        if self.trace_on is False:
             return
 
         if self.run_stamp["verbose"] is True:
@@ -122,8 +123,8 @@ class TraceMess:
         else:
             print(json.dumps({"INFO": mess}))
 
-    def error(self, mess, on=True):
-        if on is False:
+    def error(self, mess):
+        if self.trace_on is False:
             return
 
         if self.run_stamp["verbose"] is True:
@@ -133,8 +134,8 @@ class TraceMess:
         else:
             print(json.dumps({"ERROR": mess}))
 
-    def warning(self, mess, on=True):
-        if on is False:
+    def warning(self, mess):
+        if self.trace_on is False:
             return
 
         if self.run_stamp["verbose"] is True:
@@ -144,8 +145,8 @@ class TraceMess:
         else:
             print(json.dumps({"WARNING": mess}))
 
-    def feature(self, mess, on=True):
-        if on is True:
+    def feature(self, mess):
+        if self.trace_on is True:
             if self.run_stamp["verbose"] is True:
                 print(json.dumps({"mess-type": "FEATURE",
                                   "run-id": self.run_stamp["run-id"],

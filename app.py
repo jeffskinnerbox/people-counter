@@ -34,7 +34,7 @@ from imutils.video import FPS
 defaults = {
     "version": "0.3.0",                               # this algorithm version number
     "platform": os.uname(),                           # host name your running on
-    "trace": False,                                   # turn on trace messaging
+    "trace_on": False,                                # turn on trace messaging
     "show": True,                                     # turn on video display of real-time image
     "video_write_off": 'store_false',                 # turn on trace messaging
     "path": "/home/pi/Videos",                        # path to video storage
@@ -117,8 +117,9 @@ def calc_lines(capture):
 
 
 def rez(s):
-    """ This function accepts two comma separated values, splits them,
-    and returns them as a 2-tuple.  There must be no white space
+    """ This function is designed to support a specific data type used
+    by the class ArgParser.  This function accepts two comma separated values,
+    splits them, and returns them as a tuple.  There must be no white space
     before or after the comma. """
     try:
         x, y = map(int, s.split(','))
@@ -129,9 +130,8 @@ def rez(s):
 
 
 def ArgParser():
-    # argparse – Command line option and argument parsing - https://pymotw.com/2/argpars
-    # argparse — Parser for command-line options, arguments and sub-commands  -https://docs.python.org/3/library/argparse.html
-    # Argparse Tutorial - https://docs.python.org/3/howto/argparse.html
+    """ This class establish a parsing mechanism for all
+    types of command line argument, switches, and options."""
 
     # construct the argument parser and parse the arguments
     ap = argparse.ArgumentParser(description=
@@ -186,11 +186,15 @@ def ArgParser():
                     help="turn off the writing of video files \
                     (even when file name is provided)",
                     action='store_true',
-                    default=False)
+                    default=defaults["video_write_off"])
     ap.add_argument("-x", "--show",
                     help="show the real-time video",
                     action='store_false',
-                    default=True)
+                    default=defaults["show"])
+    ap.add_argument("-y", "--trace_on",
+                    help="turn on tracing",
+                    action='store_true',
+                    default=defaults["trace_on"])
 
     # version actions
     ap.add_argument("-v", "--version", action="version",
@@ -273,7 +277,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
     # loop over the frames from the video stream or file
     while cap.more():
-        trc.time_start(mess="{'line#': get_linenumber()}", on=defaults["trace"])
+        trc.time_start(mess={"line#": get_linenumber()})
 
         # grab the frame from the threaded video file stream
         frame = cap.read()
@@ -313,8 +317,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
             mask2 = cv2.morphologyEx(mask2, cv2.MORPH_CLOSE, kernelCl)
         except:
             trc.info({"line#": get_linenumber(),
-                      "EXCEPTION": {"enter": cnt_up, "exit": cnt_down}},
-                     on=defaults["trace"])
+                      "EXCEPTION": {"enter": cnt_up, "exit": cnt_down}})
             break
         #################
         #    CONTOURS   #
@@ -350,24 +353,24 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
                                     "object": {"id": i.getId(),
                                     "direction": "up",
                                     "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                    time.gmtime())}}, on=defaults["trace"])
+                                    time.gmtime())}})
                                 trc.info({"line#": get_linenumber(),
                                         "total count": {"enter": cnt_up,
                                         "exit": cnt_down,
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                        time.gmtime())}}, on=defaults["trace"])
+                                        time.gmtime())}})
                             elif i.going_DOWN(line_down, line_up) is True:
                                 cnt_down += 1
                                 trc.feature({"line#": get_linenumber(),
                                         "object": {"id": i.getId(),
                                         "direction": "down",
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                        time.gmtime())}}, on=defaults["trace"])
+                                        time.gmtime())}})
                                 trc.info({"line#": get_linenumber(),
                                         "total count": {"enter": cnt_up,
                                         "exit": cnt_down,
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                        time.gmtime())}}, on=defaults["trace"])
+                                        time.gmtime())}})
                             break
                         if i.getState() == '1':
                             if i.getDir() == 'down' and i.getY() > down_limit:
@@ -453,10 +456,10 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
         # update the frame count
         fps.update()
-        trc.info({"frame no.": fps._numFrames}, on=defaults["trace"])
+        trc.info({"frame no.": fps._numFrames})
 
-        trc.time_stop(mess="{'line#': get_linenumber()}", on=defaults["trace"])
-        trc.time_elapsed(on=defaults["trace"])
+        trc.time_stop(mess={"line#": get_linenumber()})
+        trc.time_elapsed()
 
     # stop the timer and display FPS information
     fps.stop()
@@ -464,7 +467,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
     print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
     # do the final cleanup before exiting
-    trc.stop(on=defaults["trace"])
+    trc.stop()
     cap.stop()
     if args["video_write_off"] == False:
         video_rec.release()
@@ -475,9 +478,9 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 if __name__ == '__main__':
     args = vars(ArgParser())
 
-    # create object to manage trace messages
-    trc = tracemess.TraceMess(defaults["platform"], on=defaults["trace"],
-                              src=args["source"]).start(on=defaults["trace"])
+    # create object to manage trace messages and start it
+    trc = tracemess.TraceMess(defaults["platform"], src=args["source"])
+    trc.start(on=args["trace_on"])
 
     # Set Input and Output Counters
     cnt_up = initials["cnt_up"]
@@ -494,8 +497,7 @@ if __name__ == '__main__':
     time.sleep(args["warmup_time"])
 
     trc.info({"line#": get_linenumber(), "source": args["source"],
-              "path": args["file_in"], "src": args["video_device"]},
-             on=defaults["trace"])
+              "path": args["file_in"], "src": args["video_device"]})
 
     """
     # Check if camera or file has opened successfully
@@ -511,8 +513,7 @@ if __name__ == '__main__':
     trc.info({"line#": get_linenumber(),
               "frame": {"width": width, "height": height,
                         "fps": cap.get(cv2.CAP_PROP_FPS),
-                        "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}},
-             on=defaults["trace"])
+                        "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}})
 
     if args["video_write_off"] == False:
         # Define the codec and create VideoWriter object
