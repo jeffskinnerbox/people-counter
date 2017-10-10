@@ -23,7 +23,7 @@ import time
 import numpy
 import vstream
 import myperson
-import argparse
+from argparser import ArgParser
 import datetime
 import tracemess                                      # for debugging
 from tracemess import get_linenumber
@@ -116,145 +116,11 @@ def calc_lines(capture):
         pts_L1, pts_L2, pts_L3, pts_L4
 
 
-def rez(s):
-    """ This function is designed to support a specific data type used
-    by the class ArgParser.  This function accepts two comma separated values,
-    splits them, and returns them as a tuple.  There must be no white space
-    before or after the comma. """
-    try:
-        x, y = map(int, s.split(','))
-        return (x, y)
-    except:
-        raise argparse.ArgumentTypeError("parameter for -r, --resolution \
-                must be expressed as x,y")
-
-
-def ArgParser():
-    """ This class establish a parsing mechanism for all
-    types of command line argument, switches, and options."""
-
-    # construct the argument parser and parse the arguments
-    ap = argparse.ArgumentParser(description=
-                                 'This is the MassMutual Raspberry Pi \
-                                 + OpenCV people counter')
-
-    # store actions - tuple parameters
-    ap.add_argument("-z", "--resolution",
-                    help="resolution of the process imaged",
-                    nargs=1,
-                    type=rez,
-                    default=defaults["resolution"])
-
-    # store actions - single parameter
-    ap.add_argument("-s", "--source",
-                    help="include if the Raspberry Pi Camera should be used",
-                    action='store',
-                    required=False,
-                    choices=['file', 'usbcamera', 'picamera'],
-                    default='file')
-    ap.add_argument("-d", "--video_device",
-                    help="device number for input video",
-                    action='store',
-                    required=False,
-                    type=int,
-                    default=defaults["device_no"])
-    ap.add_argument("-i", "--file_in",
-                    help="path to video file that will be processed",
-                    action='store',
-                    required=False,
-                    default=defaults["path"] + '/' + defaults["file_in"])
-    ap.add_argument("-o", "--file_recP",
-                    help="path to file where the processed video is stored",
-                    action='store',
-                    required=False,
-                    default=defaults["path"] + '/' + defaults["file_recP"])
-    ap.add_argument("-r", "--file_rec",
-                    help="path to file where the unprocessed camera \
-                    video will be recorded",
-                    action='store',
-                    required=False,
-                    default=defaults["path"] + '/' + defaults["file_rec"])
-    ap.add_argument("-w", "--warmup_time",
-                    help="number of seconds to wait so camera can warm up",
-                    action='store',
-                    required=False,
-                    type=int,
-                    default=defaults["warmup_time"])
-
-    # switches actions - store_true / store_false
-    ap.add_argument("-p", "--video_write_off",
-                    help="turn off the writing of video files \
-                    (even when file name is provided)",
-                    action='store_true',
-                    default=defaults["video_write_off"])
-    ap.add_argument("-x", "--show",
-                    help="show the real-time video",
-                    action='store_false',
-                    default=defaults["show"])
-    ap.add_argument("-y", "--trace_on",
-                    help="turn on tracing",
-                    action='store_true',
-                    default=defaults["trace_on"])
-
-    # version actions
-    ap.add_argument("-v", "--version", action="version",
-                    version="%(prog)s " + defaults["version"])
-
-    return ap.parse_args()
-
-
 def PeopleCounter(cap, cnt_up=0, cnt_down=0):
-    """
-    # Video properties
-    cap.set(3, 160) # Width
-    cap.set(4, 120) # Height
 
-    # Prints the capture properties to console
-    for i in range(19):
-        print(i, cap.get(i))
-    """
-
+    # calculate the placement of the counting lines
     line_up, line_down, up_limit, down_limit, areaTH,\
         pts_L1, pts_L2, pts_L3, pts_L4 = calc_lines(cap)
-    """
-    w = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
-    h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    #w = cap.get(3)              # width of the frame
-    #h = cap.get(4)              # height of the frame
-    frameArea = h*w             # area of the frame
-    areaTH = frameArea/250
-
-    # Input / output lines
-    line_up = int(2*(h/5))      # draw blue line 2/5 from the bottom
-    line_down = int(3*(h/5))    # draw red line 3/5 from the bottom
-
-    up_limit = int(1*(h/5))
-    down_limit = int(4*(h/5))
-
-    # red line coordinates calculations
-    pt1 = [0, line_down]
-    pt2 = [w, line_down]
-    pts_L1 = numpy.array([pt1, pt2], numpy.int32)
-    pts_L1 = pts_L1.reshape((-1, 1, 2))
-
-    # blue line coordinates calculations
-    pt3 = [0, line_up]
-    pt4 = [w, line_up]
-    pts_L2 = numpy.array([pt3, pt4], numpy.int32)
-    pts_L2 = pts_L2.reshape((-1, 1, 2))
-
-    # white line coordinates calculations
-    pt5 = [0, up_limit]
-    pt6 = [w, up_limit]
-    pts_L3 = numpy.array([pt5, pt6], numpy.int32)
-    pts_L3 = pts_L3.reshape((-1, 1, 2))
-
-    # black line coordinates calculations
-    pt7 = [0, down_limit]
-    pt8 = [w, down_limit]
-    pts_L4 = numpy.array([pt7, pt8], numpy.int32)
-    pts_L4 = pts_L4.reshape((-1, 1, 2))
-    """
 
     # Background subtraction
     fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
@@ -539,46 +405,3 @@ if __name__ == '__main__':
                                 fourcc, 20.0, (int(width), int(height)))
 
     PeopleCounter(cap, initials["cnt_up"], initials["cnt_down"])
-
-"""
-def main(some_args):
-    do_stuff...
-
-def parse_arguments():
-    argument_parse_code
-    return arguments
-
-if __name__ == '__main__':
-    arguments = parse_arguments()
-    main(*arguments)
-"""
-
-"""
-# other code. . .
-
-def main(name):
-    print('Hello, %s!' % name)
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description = 'Say hello')
-    parser.add_argument('name', help='your name, enter it')
-    args = parser.parse_args()
-
-    main(args.name)
-"""
-
-"""
-def main(foo, bar, baz='spam'):
-    # run with already parsed arguments
-
-if __name__ == '__main__':
-    import sys
-
-    # parse sys.argv[1:] using optparse or argparse or what have you
-
-    main(foovalue, barvalue, **dictofoptions)
-"""
-
-"""
-https://martin-thoma.com/how-to-parse-command-line-arguments-in-python/
-"""
