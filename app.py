@@ -18,6 +18,7 @@
 
 
 import os
+import sys
 import cv2
 import time
 import numpy
@@ -346,6 +347,13 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
 
 if __name__ == '__main__':
+
+    # check to make sure running the right version of python
+    if sys.version_info[0] < 3:
+        print("You must us Python 3 ... Stopping")
+        exit(1)
+
+    # parse your command line options, arguments and, switches
     args = vars(ArgParser())
 
     # create object to manage trace messages and start it
