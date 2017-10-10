@@ -279,6 +279,9 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
     while cap.more():
         trc.time_start(mess={"line#": get_linenumber()})
 
+        # send a heartbeat when it's time
+        trc.heartbeat("Still alive!!")
+
         # grab the frame from the threaded video file stream
         frame = cap.read()
 
@@ -481,6 +484,9 @@ if __name__ == '__main__':
     # create object to manage trace messages and start it
     trc = tracemess.TraceMess(defaults["platform"], src=args["source"])
     trc.start(on=args["trace_on"])
+
+    # set the frequency of the heartbeat message (in seconds)
+    trc.heart_freq(60)
 
     # Set Input and Output Counters
     cnt_up = initials["cnt_up"]

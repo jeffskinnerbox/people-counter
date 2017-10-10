@@ -25,6 +25,8 @@ class TraceMess:
 
     def __init__(self, platform, verbose=False, src="not specified"):
         self.trace_on = False
+        self.hb_time = datetime.datetime.now()
+        self.hb_freq = 60
         self.run_stamp = {
             "mess-type": "EXEC",
             "run-id": str(uuid.uuid4()),
@@ -158,3 +160,24 @@ class TraceMess:
                             {"mess-type": "FEATURE",
                              "run-id": self.run_stamp["run-id"],
                              "mess-text": mess})
+
+    def heart_freq(self, freq):
+        self.hb_freq = freq
+
+    def heartbeat(self, mess):
+        t = datetime.datetime.now()
+        if (t - self.hb_time).total_seconds() > self.hb_freq:
+            self.hb_time = t
+
+            if self.trace_on is True:
+                if self.run_stamp["verbose"] is True:
+                    print(json.dumps({"mess-type": "HEARTBEAT",
+                                      "run-id": self.run_stamp["run-id"],
+                                      "mess-text": mess}))
+                else:
+                    print(json.dumps({"HEARTBEAT": mess}))
+
+            ts_dweepy.dweet_for(self.run_stamp["run-platform"],
+                                {"mess-type": "HEARTBEAT",
+                                 "run-id": self.run_stamp["run-id"],
+                                 "mess-text": mess})
