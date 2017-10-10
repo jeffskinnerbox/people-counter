@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
 # Version:      0.3.0
