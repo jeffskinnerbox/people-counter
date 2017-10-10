@@ -70,8 +70,7 @@ class Monitor():
                         print(json.dumps(ts_dweepy.get_latest_dweet_for(self.thing_name),
                               indent=4, sort_keys=True))
                     else:
-                        print(json.dumps(ts_dweepy.get_latest_dweet_for(self.thing_name),
-                              indent=4, sort_keys=True))
+                        print(ts_dweepy.get_latest_dweet_for(self.thing_name))
                 time.sleep(self.polling_time)
 
 
