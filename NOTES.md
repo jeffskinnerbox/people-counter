@@ -1,10 +1,10 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.3.0
+Version:      0.4.0
 -->
 
 
-# Managing the Git Repository and GitHub
+# Managing Your Git Repository and GitHub
 In here are instructions on the creation, maintenance, and use of this repository
 via [git][01] and [GitHub][02].  For more information, check out these posts:
 
@@ -21,7 +21,8 @@ Check this out:
 
 ### Creating Your Remote GitHub Repository
 Create a new repository on GitHub.
-To avoid errors, do not initialize the new repository with README, license, or gitignore files.
+To avoid errors, its best not initialize the new repository
+with README, license, or gitignore files.
 You can add these files when you push your project to GitHub.
 
 Go to [GitHub][02] and create the new repository called jupyter-notebook.
@@ -53,7 +54,7 @@ and create the file `.gitignore` like this:
 *.tif
 *.gif
 
-### Jupyter files ###
+### Jupyter Files ###
 Untitled.ipynb
 
 ### ----------------------------- General ------------------------------ ###
@@ -80,7 +81,7 @@ Untitled.ipynb
 ### backup file ###
 *.backup
 
-### Unit test / coverage reports
+### Unit Test / Coverage Reports
 htmlcov/
 .tox/
 .coverage
@@ -112,7 +113,7 @@ Thumbs.db
 Now commit all these files to the git repository:
 
     git add --all
-    git commit -m 'Initial creation of jupyter-notebooks'
+    git commit -m 'Initial creation of my project'
 
 ### Update the Remote GitHub Repository for the First Time
 Initialize the local directory as a Git repository.

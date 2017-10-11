@@ -1,10 +1,12 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.3.0
+Version:      0.4.0
 -->
 
-* To measure performance of threading, use `mpstat -P ALL 1`.
-* To measure the Internet speed, use https://fast.com/
+
+
+# Freeboard
+* Freeboard dashboard - https://freeboard.thingspace.io/board/Yx8HGW
 
 # My Jupyter Notebooks
 My expanding set of Jupyter Notebooks.
@@ -45,22 +47,28 @@ Now enter `localhost:8888` in your favorite browser to use the remote Jupyter No
 3. In 3rd window -- gnome-www-browser
 4. Now enter `localhost:8888` in the browser and now you can access the remote Jupyter Notebook!
 
-# Streaming Latency
-The streaming latency has little to do with the encoding by the Pi,
-but mostly to do with the playing or receiving end.
-If the Pi weren’t capable of encoding a frame before the next frame arrived,
-it wouldn’t be capable of recording video at all
-since it buffers would rapidly become filled and stall.
+# Sources
 
-Players typically introduce several seconds worth of latency.
-The primary reason is that most players (e.g. VLC)
-are optimized for playing streams over a network.
-Such players allocate a large (multi-second) buffer
-and only start playing once this is filled to guard against possible future packet loss.
+The people counting algorithm
 
-For additional information, see the following:
+* [People Counter 1 – Installing Python, OpenCV and trying it out](http://www.femb.com.mx/people-counter/people-counter-1-installing-python-opencv-and-trying-it-out/)
+* [People Counter 2 – Opening a video stream](http://www.femb.com.mx/people-counter/people-counter-2-opening-a-video-stream/)
+* [People Counter 3 – Drawing in the video window](http://www.femb.com.mx/people-counter/people-counter-3-drawing-in-the-video-window/)
+* [People Counter 4 – Background Susbtraction](http://www.femb.com.mx/people-counter/people-counter-4-background-susbtraction/)
+* [People Counter 5 – Morphological Transformations](http://www.femb.com.mx/people-counter/people-counter-5-morphological-transformations/)
+* [People counter 6 – Find contours](http://www.femb.com.mx/people-counter/people-counter-6-find-contours/)
+* [People counter 7 – Defining a person](http://www.femb.com.mx/people-counter/people-counter-7-defining-a-person/)
+* [People counter 8 – Following movement](http://www.femb.com.mx/people-counter/people-counter-8-finding-movement/)
+* [People Counter 9 – Counting](http://www.femb.com.mx/people-counter/people-counter-9-counting/)
 
-* [Why is there so much latency when streaming video?](http://picamera.readthedocs.io/en/release-1.10/faq.html#why-is-there-so-much-latency-when-streaming-video)
+Fast video processing
 
+* [Faster video file FPS with cv2.VideoCapture and OpenCV](https://www.pyimagesearch.com/2017/02/06/faster-video-file-fps-with-cv2-videocapture-and-opencv)
+* [Unifying picamera and cv2.VideoCapture into a single class with OpenCV](http://www.pyimagesearch.com/2016/01/04/unifying-picamera-and-cv2-videocapture-into-a-single-class-with-opencv/)
+* [Increasing webcam FPS with Python and OpenCV](http://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/)
+* [A series of OpenCV convenience functions](https://www.pyimagesearch.com/2015/02/02/just-open-sourced-personal-imutils-package-series-opencv-convenience-functions/)
 
+Loading OpenCV
 
+* [Optimizing OpenCV on the Raspberry Pi](https://www.pyimagesearch.com/2017/10/09/optimizing-opencv-on-the-raspberry-pi/)
+* [Raspbian Stretch: Install OpenCV 3 + Python on your Raspberry Pi](https://www.pyimagesearch.com/2017/09/04/raspbian-stretch-install-opencv-3-python-on-your-raspberry-pi/)

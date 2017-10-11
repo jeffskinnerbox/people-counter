@@ -23,7 +23,6 @@ The materials required to build the hardware environment is as follows:
 | Name      | Description                                                       | Price | Source            |
 |:---------:|:-----------------------------------------------------------------:|:-----:|:-----------------:|
 | Processor | Raspberry PI 3 Model B 1.2GHz 64-bit quad-core ARMv8 CPU, 1GB RAM | $35   | [Amazon](https://www.amazon.com/Raspberry-Model-1-2GHz-64-bit-quad-core/dp/B01CD5VC92/) |
-| Case    | Aluminum case, Customize for Raspberry Pi 3/ Raspberry Pi 2 / Raspberry Pi B+ | $15 | [Amazon](https://www.amazon.com/gp/product/B0722L338Q) |
 | SD Card | Sandisk Ultra MICROSDHC 32GB 80MB/S Flash Memory Card | $17 | [Amazon](https://www.amazon.com/gp/product/B0148S2WUU) |
 | Camera Clamp Mount | i.Trek ME-DC1+ME-CLP 12-Inch Clamp Mount for Compact Digital Camera | $19 | [Amazon](https://www.amazon.com/gp/product/B008OLGKLU) |
 | Camera | Raspberry Pi Camera Module V2 - 8 Megapixel,1080p | $27 | [Amazon](https://www.amazon.com/gp/product/B01ER2SKFS) |
@@ -31,6 +30,8 @@ The materials required to build the hardware environment is as follows:
 | Power SUpply | CanaKit 5V 2.5A Raspberry Pi 3 Power Supply / Adapter / Charger | $10 | [Amazon](https://www.amazon.com/CanaKit-Raspberry-Supply-Adapter-Charger/dp/B00MARDJZ4) |
 | WiFi Dongle | Edimax EW-7811Un 150Mbps 11n Wi-Fi USB Adapter | $8 | [Amazon](https://www.amazon.com/gp/product/B003MTTJOY) |
 | Mobile Hot Spot | Jetpack 4G LTE Mobile Hotspot—AC791L | $100 | [Verizon](https://www.verizonwireless.com/internet-devices/verizon-jetpack-4g-lte-mobile-hotspot-ac791l/) |
+| Case    | Aluminum case, Customize for Raspberry Pi 3/ Raspberry Pi 2 / Raspberry Pi B+ | $15 | [Amazon](https://www.amazon.com/gp/product/B0722L338Q) |
+| Case    | Night Vision PIR Camer Box Bundle B+/2/3 | $20 | [MODMYPI](https://www.modmypi.com/raspberry-pi/cases-183/raspberry-pi-b-plus2-and-3-cases-1122/modmypi-pir-night-vision-camera-box-bundle-b-plus23) |
 
 
 ## Building Operating Environment - DONE

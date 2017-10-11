@@ -1,6 +1,6 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.3.0
+Version:      0.4.0
 -->
 
 ![Open Source Logo][logo]
@@ -40,7 +40,8 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Also see ["About Open Source Licenses"][osl]
 and ["Open source licensing: What every technologist should know"][01]
 for more possibilities and information.
-I find the technical stuff sufficiently challenging, who needs all this legal mumbo jumbo!
+I find the technical stuff sufficiently challenging,
+who needs all this legal mumbo jumbo!
 
 
 

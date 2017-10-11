@@ -1,6 +1,6 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.3.0
+# Version:      0.4.0
 #
 # Source: "Faster video file FPS with cv2.VideoCapture and OpenCV" blog by Adrian Rosebrock
 #         https://www.pyimagesearch.com/2017/02/06/faster-video-file-fps-with-cv2-videocapture-and-opencv
@@ -18,22 +18,23 @@ from imutils.video import VideoStream
 class VStream:
     vsource = None
 
-    def __init__(self, source='file', path=None, queueSize=128, src=0,
-                 resolution=(640, 480), framerate=30):
+    def __init__(self, source='file', path=None, qs=128, sr=0,
+                 res=(640, 480), fr=30):
         # initialize the video stream along with the boolean:w
 
         # used to indicate if the thread should be stopped or not
         self.vsource = source
+        self.width = res[0]
+        self.height = res[1]
+
         if self.vsource == 'file':
-            self.stream = FileVideoStream(path, queueSize=queueSize).start()
+            self.stream = FileVideoStream(path, queueSize=qs).start()
         elif self.vsource == 'usbcamera':
-            self.stream = VideoStream(src=src, usePiCamera=False,
-                                      resolution=resolution,
-                                      framerate=framerate).start()
+            self.stream = VideoStream(src=sr, usePiCamera=False,
+                                      resolution=res, framerate=fr).start()
         elif self.vsource == 'picamera':
-            self.stream = VideoStream(src=src, usePiCamera=True,
-                                      resolution=resolution,
-                                      framerate=framerate).start()
+            self.stream = VideoStream(src=sr, usePiCamera=True,
+                                      resolution=res, framerate=fr).start()
 
     def start(self):
         """This start a thread to read frames from the file or video stream"""
@@ -80,20 +81,19 @@ class VStream:
     def get(self, obj):
         """Access cv2.VideoCapture.get() within the FileVideoStream class"""
         if self.vsource == 'picamera':
-            if obj == cv2.CAP_PROP_FRAME_WIDTH:      # Width of the frames in the video stream
-                return 640
-            elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # Height of the frames in the video stream
-                return 480
-            elif obj == cv2.CAP_PROP_FPS:            # Frame rate
+            if obj == cv2.CAP_PROP_FRAME_WIDTH:      # width of the frames
+                return self.width
+            elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # height of the frames
+                return self.height
+            elif obj == cv2.CAP_PROP_FPS:            # frame rate
                 return 30
-            elif obj == cv2.CAP_PROP_FRAME_COUNT:    # Number of frames in the video file
+            elif obj == cv2.CAP_PROP_FRAME_COUNT:    # number of frames
                 return 1
         else:
             return self.stream.stream.get(obj)
 
 """
-Picamera 1.13 Documentation (Release 1.13) - https://media.readthedocs.org/pdf/picamera/latest/picamera.pdf
-API - picamera.camera Module - http://picamera.readthedocs.io/en/release-1.13/api_camera.html
+A VideoCapture object has several properties that you can access and sometimes change:
 
         self.POS_MSEC = vidcap.get(CAP_PROP_POS_MSEC)             # Current position of the video file in milliseconds or video capture timestamp
         self.POS_FRAMES = vidcap.get(CAP_PROP_POS_FRAMES)         # 0-based index of the frame to be decoded/captured next
@@ -114,5 +114,8 @@ API - picamera.camera Module - http://picamera.readthedocs.io/en/release-1.13/ap
         self.CONVERT_RGB = vidcap.get(CAP_PROP_CONVERT_RGB)       # Boolean flags indicating whether images should be converted to RGB
         self.WHITE_BALANCE = vidcap.get(CAP_PROP_WHITE_BALANCE)   # Currently not supported
         self.RECTIFICATION = vidcap.get(CAP_PROP_RECTIFICATION)   # Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
+
+Picamera 1.13 Documentation (Release 1.13) - https://media.readthedocs.org/pdf/picamera/latest/picamera.pdf
+API - picamera.camera Module - http://picamera.readthedocs.io/en/release-1.13/api_camera.html
 
 """

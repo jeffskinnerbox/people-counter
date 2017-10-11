@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.3.0
+# Version:      0.4.0
 #
 # USAGE:
 #     python3 app.py -s picamera  -  using pi camera and no trace messages
@@ -33,19 +33,19 @@ from imutils.video import FPS
 
 # default parameters when stating the algorithm
 defaults = {
-    "version": "0.3.0",                               # this algorithm version number
-    "platform": os.uname(),                           # host name your running on
+    "version": "0.3.0",                               # algorithm version number
+    "platform": os.uname(),                           # host your running on
     "trace_on": False,                                # turn on trace messaging
-    "show": True,                                     # turn on video display of real-time image
+    "show": True,                                     # turn on video display
     "video_write_off": 'store_false',                 # turn on trace messaging
     "path": "/home/pi/Videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
     "file_recP": "recordingP.mp4",                    # video after processing
-    "warmup_time": 1.5,                               # sec for camera warm up
+    "warmup_time": 1.0,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
     "color_blue": (255, 0, 0),                        # opencv BGR color
-    "resolution": [(640, 480)],                       # image resolution for processing
+    "resolution": [(640, 480)],                       # w,h resolution of frame
     "color_green": (0, 255, 0),                       # opencv BGR color
     "color_red": (0, 0, 255),                         # opencv BGR color
     "color_white": (255, 255, 255),                   # opencv BGR color
@@ -67,9 +67,14 @@ initials = {
 }
 
 
-def calc_lines(capture):
-    w = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
-    h = capture.get(cv2.CAP_PROP_FRAME_HEIGHT)
+def calc_lines(capture, res):
+    """ The frame will be divided into 5 horizontal zones of equal size.
+    These zones, and how objects a managed within them, will be critical
+    to the accurate accounting for the entry and exit of people.
+    To make these zones visible to the user, boundary lines draw on the frame.
+    """
+    w = res[0]
+    h = res[1]
     print("\nw =", w, "  h =", h)
 
     frameArea = h*w             # area of the frame
@@ -121,7 +126,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
     # calculate the placement of the counting lines
     line_up, line_down, up_limit, down_limit, areaTH,\
-        pts_L1, pts_L2, pts_L3, pts_L4 = calc_lines(cap)
+        pts_L1, pts_L2, pts_L3, pts_L4 = calc_lines(cap, args["resolution"][0])
 
     # Background subtraction
     fgbg = cv2.createBackgroundSubtractorMOG2(detectShadows=True)
@@ -154,7 +159,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
         frame = cap.read()
 
         # write the frame to a file, as capture and without processing
-        if args["video_write_off"] == False:
+        if args["video_write_off"] is False:
             video_rec.write(frame)
 
         # NOTE: CAN'T DO THIS AFTER CALCULATING LINES
@@ -195,7 +200,8 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
         #################
 
         # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.                #noqa
-        _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)        #noqa
+        _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL,
+                                                   cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours0:
             area = cv2.contourArea(cnt)
             if area > areaTH:
@@ -261,10 +267,10 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
                 #################
                 #   DRAWINGS    #
                 #################
-                cv2.circle(frame, (cx, cy), 5, defaults["color_blue"], -1)
+                cv2.circle(frame, (cx, cy), 5, defaults["color_green"], -1)
                 img = cv2.rectangle(frame, (x, y), (x+w, y+h),
                                     defaults["color_green"], 2)
-                # cv2.drawContours(frame, cnt, -1, (0, 255, 0), 3)
+                #cv2.drawContours(frame, cnt, -1, defaults["color_black"], 3)
 
         # END for cnt in contours0
 
@@ -309,7 +315,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
         cv2.putText(frame, ts, (10, frame.shape[0] - 10),
                     defaults["font"], 0.35, defaults["color_red"], 1)
 
-        if args["show"] == True:
+        if args["show"] is True:
             cv2.imshow('Frame', frame)
             #cv2.imshow('Frame', cv2.resize(frame, (640, 480)))
 
@@ -317,7 +323,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
             # cv2.imshow('Mask', mask)
 
         # write the frame after it has been processed
-        if args["video_write_off"] == False:
+        if args["video_write_off"] is False:
             video_recP.write(frame)
 
         # pre-set ESC, Ctrl-c or 'q' to exit
@@ -340,7 +346,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
     # do the final cleanup before exiting
     trc.stop()
     cap.stop()
-    if args["video_write_off"] == False:
+    if args["video_write_off"] is False:
         video_rec.release()
         video_recP.release()
     cv2.destroyAllWindows()
@@ -348,19 +354,18 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
 if __name__ == '__main__':
 
-    # check to make sure running the right version of python
+    # check to make sure your running the right version of python
     if sys.version_info[0] < 3:
-        print("You must us Python 3 ... Stopping")
+        print("You must us Python 3 ... Exiting")
         exit(1)
 
     # parse your command line options, arguments and, switches
     args = vars(ArgParser())
 
-    # create object to manage trace messages and start it
+    # create and start object to manage trace messages
+    # set the frequency of the heartbeat message (in seconds)
     trc = tracemess.TraceMess(defaults["platform"], src=args["source"])
     trc.start(on=args["trace_on"])
-
-    # set the frequency of the heartbeat message (in seconds)
     trc.heart_freq(60)
 
     # Set Input and Output Counters
@@ -371,11 +376,16 @@ if __name__ == '__main__':
                           #resolution=(640, 480),
                           #resolution=(320, 240),
                           #resolution=(160, 128),
-                          resolution=args["resolution"][0],
-                          src=args["video_device"])
+                          res=args["resolution"][0],
+                          sr=args["video_device"])
 
     # wait while camera warms up and VStream initialize
     time.sleep(args["warmup_time"])
+
+    print("camera version =", cap.version())
+    print("camera resolution =", args["resolution"][0])
+    print("width = cap.get(cv2.CAP_PROP_FRAME_WIDTH) =", cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    print("height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT) =", cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     trc.info({"line#": get_linenumber(), "source": args["source"],
               "path": args["file_in"], "src": args["video_device"]})
@@ -396,14 +406,14 @@ if __name__ == '__main__':
                         "fps": cap.get(cv2.CAP_PROP_FPS),
                         "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}})
 
-    if args["video_write_off"] == False:
+    if args["video_write_off"] is False:
         # Define the codec and create VideoWriter object
         # fourcc = cv2.VideoWriter_fourcc(*'XVID')
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
         fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
         video_recP = cv2.VideoWriter(args["file_recP"],
-                                    fourcc, 20.0, (int(width), int(height)))
+                                     fourcc, 20.0, (int(width), int(height)))
 
         # Define the codec and create VideoWriter object
         # fourcc = cv2.VideoWriter_fourcc(*'XVID')
@@ -411,6 +421,6 @@ if __name__ == '__main__':
         fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
         fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
         video_rec = cv2.VideoWriter(args["file_rec"],
-                                fourcc, 20.0, (int(width), int(height)))
+                                    fourcc, 20.0, (int(width), int(height)))
 
     PeopleCounter(cap, initials["cnt_up"], initials["cnt_down"])
