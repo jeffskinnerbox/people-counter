@@ -8,30 +8,6 @@ import cv2
 import argparse
 
 
-# default parameters when stating the algorithm
-defaults = {
-    "version": "0.3.0",                               # this algorithm version number
-    "platform": os.uname(),                           # host name your running on
-    "trace_on": False,                                # turn on trace messaging
-    "show": True,                                     # turn on video display of real-time image
-    "video_write_off": 'store_false',                 # turn on trace messaging
-    "path": "/home/pi/Videos",                        # path to video storage
-    "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
-    "file_rec": "recording.mp4",                      # video before processing
-    "file_recP": "recordingP.mp4",                    # video after processing
-    "warmup_time": 1.5,                               # sec for camera warm up
-    "device_no": 0,                                   # usb video device number
-    "color_blue": (255, 0, 0),                        # opencv BGR color
-    "resolution": [(640, 480)],                       # image resolution for processing
-    "color_green": (0, 255, 0),                       # opencv BGR color
-    "color_red": (0, 0, 255),                         # opencv BGR color
-    "color_white": (255, 255, 255),                   # opencv BGR color
-    "color_black": (0, 0, 0),                         # opencv BGR color
-    "font": cv2.FONT_HERSHEY_SIMPLEX,                 # font used on frame
-    "max_p_age": 5
-}
-
-
 def rez(s):
     """ This function is designed to support a specific data type used
     by the class ArgParser.  This function accepts two comma separated values,
@@ -45,7 +21,7 @@ def rez(s):
                 must be expressed as x,y")
 
 
-def ArgParser():
+def ArgParser(defaults):
     """ This class establish a parsing mechanism for all
     types of command line argument, switches, and options."""
 

@@ -31,14 +31,14 @@ from tracemess import get_linenumber
 from imutils.video import FPS
 
 
-# default parameters when stating the algorithm
+# default paramsters when stating the algorithm
 defaults = {
     "version": "0.3.0",                               # algorithm version number
     "platform": os.uname(),                           # host your running on
     "trace_on": False,                                # turn on trace messaging
     "show": True,                                     # turn on video display
     "video_write_off": 'store_false',                 # turn on trace messaging
-    "path": "/home/pi/Videos",                        # path to video storage
+    "path": "/path/to/videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
     "file_recP": "recordingP.mp4",                    # video after processing
@@ -53,12 +53,6 @@ defaults = {
     "font": cv2.FONT_HERSHEY_SIMPLEX,                 # font used on frame
     "max_p_age": 5
 }
-
-# update your defaults based on the box your running on
-if os.uname()[1] == "desktop":
-    defaults["path"] = "/home/jeff/Videos"
-elif os.uname()[1] == "BlueRpi":
-    defaults["path"] = "/home/pi/Videos"
 
 # initial conditions when stating the algorithm
 initials = {
@@ -354,13 +348,29 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
 if __name__ == '__main__':
 
+    # update your defaults based on the box your running on
+    print("os.uname()[1] = " + os.uname()[1])
+    if os.uname()[1] == "desktop":
+        defaults["path"] = "/home/jeff/Videos"
+    elif os.uname()[1] == "BlueRpi":
+        defaults["path"] = "/home/pi/Videos"
+    else:
+        print("This program currently only works on\
+              \"desktop\" and \"BlueRpi\" ... Exiting")
+        exit(1)
+
+    # parse your command line options, arguments and, switches
+    args = vars(ArgParser(defaults))
+
     # check to make sure your running the right version of python
     if sys.version_info[0] < 3:
         print("You must us Python 3 ... Exiting")
         exit(1)
 
-    # parse your command line options, arguments and, switches
-    args = vars(ArgParser())
+    # check if your input files exit
+    if os.path.isfile(args["file_in"]) is False:
+        print("File \"" + args["file_in"] + "\" doesn't exit ... Exiting")
+        exit(1)
 
     # create and start object to manage trace messages
     # set the frequency of the heartbeat message (in seconds)
