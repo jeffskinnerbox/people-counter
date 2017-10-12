@@ -14,27 +14,41 @@ import cv2
 from imutils.video import FileVideoStream
 from imutils.video import VideoStream
 
-
 class VStream:
     vsource = None
 
-    def __init__(self, source='file', path=None, qs=128, sr=0,
-                 res=(640, 480), fr=30):
-        # initialize the video stream along with the boolean:w
+    def __init__(self, source='file', path=None, qs=128, src=0,
+                 resolution=(640, 480), fr=30):
+        """ Only the PiCamera will allow you to set its resolution at creation
+        time.  In other cases, the function VideoCapture.set() needs to be used
+        post-creation. But this will not work uniformally for all types
+        of cameras.  As a result, the frame must be resized manually to
+        your desired resolution.
+        """
 
-        # used to indicate if the thread should be stopped or not
         self.vsource = source
-        self.width = res[0]
-        self.height = res[1]
+        self.target_width = resolution[0]
+        self.target_height = resolution[1]
 
         if self.vsource == 'file':
             self.stream = FileVideoStream(path, queueSize=qs).start()
         elif self.vsource == 'usbcamera':
-            self.stream = VideoStream(src=sr, usePiCamera=False,
-                                      resolution=res, framerate=fr).start()
+            self.stream = VideoStream(src=src, usePiCamera=False).start()
         elif self.vsource == 'picamera':
-            self.stream = VideoStream(src=sr, usePiCamera=True,
-                                      resolution=res, framerate=fr).start()
+            self.stream = VideoStream(usePiCamera=True, resolution=resolution,
+                                      framerate=fr).start()
+
+        self.native_width = self.stream.stream.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.native_height = self.stream.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)
+
+    def native_res(self):
+        return (self.native_width, self.native_height)
+
+    def target_res(self):
+        return (self.target_width, self.target_height)
+
+    def resize(self, frame, resolution):
+        return cv2.resize(frame, resolution)
 
     def start(self):
         """This start a thread to read frames from the file or video stream"""
@@ -85,10 +99,8 @@ class VStream:
                 return self.width
             elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # height of the frames
                 return self.height
-            elif obj == cv2.CAP_PROP_FPS:            # frame rate
-                return 30
-            elif obj == cv2.CAP_PROP_FRAME_COUNT:    # number of frames
-                return 1
+            else:
+                print("Value of " + str(obj) + " not supported in VStream.get()")
         else:
             return self.stream.stream.get(obj)
 

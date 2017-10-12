@@ -44,10 +44,11 @@ defaults = {
     "file_recP": "recordingP.mp4",                    # video after processing
     "warmup_time": 1.0,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
-    "color_blue": (255, 0, 0),                        # opencv BGR color
     "resolution": [(640, 480)],                       # w,h resolution of frame
+    "color_blue": (255, 0, 0),                        # opencv BGR color
     "color_green": (0, 255, 0),                       # opencv BGR color
     "color_red": (0, 0, 255),                         # opencv BGR color
+    "color_yellow": (0, 255, 255),                    # opencv BGR color
     "color_white": (255, 255, 255),                   # opencv BGR color
     "color_black": (0, 0, 0),                         # opencv BGR color
     "font": cv2.FONT_HERSHEY_SIMPLEX,                 # font used on frame
@@ -116,7 +117,7 @@ def calc_lines(capture, res):
         pts_L1, pts_L2, pts_L3, pts_L4
 
 
-def PeopleCounter(cap, cnt_up=0, cnt_down=0):
+def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):
 
     # calculate the placement of the counting lines
     line_up, line_down, up_limit, down_limit, areaTH,\
@@ -152,9 +153,9 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
         # grab the frame from the threaded video file stream
         frame = cap.read()
 
-        # write the frame to a file, as capture and without processing
-        if args["video_write_off"] is False:
-            video_rec.write(frame)
+        # resize the frame to your target resolution since
+        # can't guarantee your camera is set for your target
+        frame = cap.resize(frame, resolution)
 
         # NOTE: CAN'T DO THIS AFTER CALCULATING LINES
         # grab the frame from the threaded video file stream, resize it
@@ -162,6 +163,10 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 
         # convert frame it to grayscale
         #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # write the frame to a file, as capture and without processing
+        if args["video_write_off"] is False:
+            video_rec.write(frame)
 
         for i in persons:
             i.age_one()   # age every person one frame
@@ -293,7 +298,7 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
         frame = cv2.polylines(frame, [pts_L3], False,
                               defaults["color_white"], thickness=1)
         frame = cv2.polylines(frame, [pts_L4], False,
-                              defaults["color_black"], thickness=1)
+                              defaults["color_yellow"], thickness=1)
         cv2.putText(frame, str_up, (10, 40), defaults["font"], 0.5,
                     defaults["color_white"], 2, cv2.LINE_AA)
         cv2.putText(frame, str_up, (10, 40), defaults["font"], 0.5,
@@ -349,7 +354,6 @@ def PeopleCounter(cap, cnt_up=0, cnt_down=0):
 if __name__ == '__main__':
 
     # update your defaults based on the box your running on
-    print("os.uname()[1] = " + os.uname()[1])
     if os.uname()[1] == "desktop":
         defaults["path"] = "/home/jeff/Videos"
     elif os.uname()[1] == "BlueRpi":
@@ -386,16 +390,18 @@ if __name__ == '__main__':
                           #resolution=(640, 480),
                           #resolution=(320, 240),
                           #resolution=(160, 128),
-                          res=args["resolution"][0],
-                          sr=args["video_device"])
+                          resolution=args["resolution"][0],
+                          src=args["video_device"])
 
     # wait while camera warms up and VStream initialize
     time.sleep(args["warmup_time"])
 
+    # print out your target and native resolution
+    print("target resolution = (width, height) =", cap.target_res())
+    print("native resolution = (width, height) =", cap.native_res())
+
     print("camera version =", cap.version())
     print("camera resolution =", args["resolution"][0])
-    print("width = cap.get(cv2.CAP_PROP_FRAME_WIDTH) =", cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    print("height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT) =", cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     trc.info({"line#": get_linenumber(), "source": args["source"],
               "path": args["file_in"], "src": args["video_device"]})
@@ -411,10 +417,6 @@ if __name__ == '__main__':
     # Get current width and height of frame
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    trc.info({"line#": get_linenumber(),
-              "frame": {"width": width, "height": height,
-                        "fps": cap.get(cv2.CAP_PROP_FPS),
-                        "count": cap.get(cv2.CAP_PROP_FRAME_COUNT)}})
 
     if args["video_write_off"] is False:
         # Define the codec and create VideoWriter object
@@ -433,4 +435,4 @@ if __name__ == '__main__':
         video_rec = cv2.VideoWriter(args["file_rec"],
                                     fourcc, 20.0, (int(width), int(height)))
 
-    PeopleCounter(cap, initials["cnt_up"], initials["cnt_down"])
+    PeopleCounter(cap, args["resolution"][0], initials["cnt_up"], initials["cnt_down"])
