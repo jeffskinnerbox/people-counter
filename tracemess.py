@@ -156,10 +156,15 @@ class TraceMess:
             else:
                 print(json.dumps({"FEATURE": mess}))
 
-        ts_dweepy.dweet_for(self.run_stamp["run-platform"],
-                            {"mess-type": "FEATURE",
-                             "run-id": self.run_stamp["run-id"],
-                             "mess-text": mess})
+        try:
+            ts_dweepy.dweet_for(self.run_stamp["run-platform"],
+                                {"mess-type": "FEATURE",
+                                 "run-id": self.run_stamp["run-id"],
+                                 "mess-text": mess})
+        except requests.exceptions.RequestException as e:
+            #exc_info = sys.exc_info()
+            print("Communication error within ts_dweepy")
+            #pass
 
     def heart_freq(self, freq):
         self.hb_freq = freq
@@ -177,7 +182,12 @@ class TraceMess:
                 else:
                     print(json.dumps({"HEARTBEAT": mess}))
 
+        try:
             ts_dweepy.dweet_for(self.run_stamp["run-platform"],
                                 {"mess-type": "HEARTBEAT",
                                  "run-id": self.run_stamp["run-id"],
                                  "mess-text": mess})
+        except requests.exceptions.RequestException as e:
+            #exc_info = sys.exc_info()
+            print("Communication error within ts_dweepy")
+            #pass

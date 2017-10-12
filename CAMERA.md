@@ -44,6 +44,7 @@ ioctl: VIDIOC_ENUM_FRAMESIZES
 # show all the supported rsolutions
 v4l2-ctl --device /dev/video0 --list-formats-ext
 ```
+https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 
 # API - picamera Package
 http://picamera.readthedocs.io/en/release-1.10/install3.html
