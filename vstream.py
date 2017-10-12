@@ -70,12 +70,12 @@ class VStream:
 
         if self.vsource == 'picamera':
             # read one frame to determine the resolution of the camera
-            frame = self.read()
-            self.native_width = frame.shape[0]
-            self.native_height = frame.shape[1]
+            #frame = self.read()
+            #self.native_width = frame.shape[0]
+            #self.native_height = frame.shape[1]
             # this isn't right but can't figure out the picarmera
-            #self.native_width = resolution[0]
-            #self.native_height = resolution[1]
+            self.native_width = resolution[0]
+            self.native_height = resolution[1]
         else:
             self.native_width = self.get(cv2.CAP_PROP_FRAME_WIDTH)
             self.native_height = self.get(cv2.CAP_PROP_FRAME_HEIGHT)
