@@ -38,8 +38,8 @@ class VStream:
             self.stream = VideoStream(usePiCamera=True, resolution=resolution,
                                       framerate=fr).start()
 
-        self.native_width = self.stream.stream.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.native_height = self.stream.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        self.native_width = self.get(cv2.CAP_PROP_FRAME_WIDTH)
+        self.native_height = self.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
     def native_res(self):
         return (self.native_width, self.native_height)
@@ -94,11 +94,13 @@ class VStream:
 
     def get(self, obj):
         """Access cv2.VideoCapture.get() within the FileVideoStream class"""
+
+        # THIS NEEDS TO BE FIXED>  YOU NEED TO CALL picamera
         if self.vsource == 'picamera':
             if obj == cv2.CAP_PROP_FRAME_WIDTH:      # width of the frames
-                return self.width
+                return self.target_width
             elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # height of the frames
-                return self.height
+                return self.target_height
             else:
                 print("Value of " + str(obj) + " not supported in VStream.get()")
         else:
