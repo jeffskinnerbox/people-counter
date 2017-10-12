@@ -8,6 +8,9 @@
 #         http://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/
 #         https://github.com/jrosebr1/imutils/tree/master/imutils/video
 
+# https://julien.danjou.info/blog/2016/python-exceptions-guide
+# http://www.pythonforbeginners.com/error-handling/exception-handling-in-python
+
 """
 A VideoCapture object has several properties that you can access and sometimes change:
 
@@ -66,13 +69,13 @@ class VStream:
                                       framerate=fr).start()
 
         if self.vsource == 'picamera':
-            #frame = self.read()
-            #res = frame.shape()
-            #self.native_width = res[0]
-            #self.native_height = res[1]
+            # read one frame to determine the resolution of the camera
+            frame = self.read()
+            self.native_width = frame.shape[0]
+            self.native_height = frame.shape[1]
             # this isn't right but can't figure out the picarmera
-            self.native_width = resolution[0]
-            self.native_height = resolution[1]
+            #self.native_width = resolution[0]
+            #self.native_height = resolution[1]
         else:
             self.native_width = self.get(cv2.CAP_PROP_FRAME_WIDTH)
             self.native_height = self.get(cv2.CAP_PROP_FRAME_HEIGHT)
