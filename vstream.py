@@ -8,6 +8,33 @@
 #         http://www.pyimagesearch.com/2015/12/21/increasing-webcam-fps-with-python-and-opencv/
 #         https://github.com/jrosebr1/imutils/tree/master/imutils/video
 
+"""
+A VideoCapture object has several properties that you can access and sometimes change:
+
+CAP_PROP_POS_MSEC        # Current position of the video file in milliseconds or video capture timestamp
+CAP_PROP_POS_FRAMES      # 0-based index of the frame to be decoded/captured next
+CAP_PROP_POS_AVI_RATIO   # Relative position of the video file: 0 - start of the film, 1 - end of the film
+CAP_PROP_FRAME_WIDTH     # Width of the frames in the video stream
+CAP_PROP_FRAME_HEIGHT    # Height of the frames in the video stream
+CAP_PROP_FPS             # Frame rate
+CAP_PROP_FOURCC          # 4-character code of codec
+CAP_PROP_FRAME_COUNT     # Number of frames in the video file
+CAP_PROP_FORMAT          # Format of the Mat objects returned by retrieve(
+CAP_PROP_MODE            # Backend-specific value indicating the current capture mode
+CAP_PROP_BRIGHTNESS      # Brightness of the image (only for cameras)
+CAP_PROP_CONTRAST        # Contrast of the image (only for cameras)
+CAP_PROP_SATURATION      # Saturation of the image (only for cameras)
+CAP_PROP_HUE             # Hue of the image (only for cameras)
+CAP_PROP_GAIN            # Gain of the image (only for cameras)
+CAP_PROP_EXPOSURE        # Exposure (only for cameras)
+CAP_PROP_CONVERT_RGB     # Boolean flags indicating whether images should be converted to RGB
+CAP_PROP_WHITE_BALANCE   # Currently not supported
+CAP_PROP_RECTIFICATION   # Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
+
+Picamera 1.13 Documentation (Release 1.13) - https://media.readthedocs.org/pdf/picamera/latest/picamera.pdf
+API - picamera.camera Module - http://picamera.readthedocs.io/en/release-1.13/api_camera.html
+
+"""
 
 # import the necessary packages
 import cv2
@@ -19,13 +46,13 @@ class VStream:
 
     def __init__(self, source='file', path=None, qs=128, src=0,
                  resolution=(640, 480), fr=30):
-        """ Only the PiCamera will allow you to set its resolution at creation
-        time.  In other cases, the function VideoCapture.set() needs to be used
-        post-creation. But this will not work uniformally for all types
-        of cameras.  As a result, the frame must be resized manually to
-        your desired resolution.
         """
-
+        Only the PiCamera will allow you to set its resolution at creation
+        time.  In other cases (i.e. usb camera or file), the function
+        VideoCapture.set() needs to be used post-creation to set resolution.
+        But this will not work uniformly for all types of cameras.  As a
+        result, the frame must be resized manually to your desired resolution.
+        """
         self.vsource = source
         self.target_width = resolution[0]
         self.target_height = resolution[1]
@@ -38,8 +65,13 @@ class VStream:
             self.stream = VideoStream(usePiCamera=True, resolution=resolution,
                                       framerate=fr).start()
 
-        self.native_width = self.get(cv2.CAP_PROP_FRAME_WIDTH)
-        self.native_height = self.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        if self.vsource == 'picamera':
+            res = self.stream.shape
+            self.native_width = res[0]
+            self.native_height =  res[1]
+        else:
+            self.native_width = self.get(cv2.CAP_PROP_FRAME_WIDTH)
+            self.native_height = self.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
     def native_res(self):
         return (self.native_width, self.native_height)
@@ -51,7 +83,9 @@ class VStream:
         return cv2.resize(frame, resolution)
 
     def start(self):
-        """This start a thread to read frames from the file or video stream"""
+        """
+        This start a thread to read frames from the file or video stream
+        """
         return self.stream.start()
 
     def update(self):
@@ -95,41 +129,15 @@ class VStream:
     def get(self, obj):
         """Access cv2.VideoCapture.get() within the FileVideoStream class"""
 
-        # THIS NEEDS TO BE FIXED>  YOU NEED TO CALL picamera
         if self.vsource == 'picamera':
             if obj == cv2.CAP_PROP_FRAME_WIDTH:      # width of the frames
-                return self.target_width
+                return self.native_width
             elif obj == cv2.CAP_PROP_FRAME_HEIGHT:   # height of the frames
-                return self.target_height
+                return self.native_height
             else:
-                print("Value of " + str(obj) + " not supported in VStream.get()")
+                print("Value of " + str(obj) +
+                      " not supported in VStream.get() for PiCamera")
+                return None
         else:
             return self.stream.stream.get(obj)
 
-"""
-A VideoCapture object has several properties that you can access and sometimes change:
-
-        self.POS_MSEC = vidcap.get(CAP_PROP_POS_MSEC)             # Current position of the video file in milliseconds or video capture timestamp
-        self.POS_FRAMES = vidcap.get(CAP_PROP_POS_FRAMES)         # 0-based index of the frame to be decoded/captured next
-        self.POS_AVI_RATIO = vidcap.get(CAP_PROP_POS_AVI_RATIO)   # Relative position of the video file: 0 - start of the film, 1 - end of the film
-        self.FRAME_WIDTH = vidcap.get(CAP_PROP_FRAME_WIDTH)       # Width of the frames in the video stream
-        self.FRAME_HEIGHT = vidcap.get(CAP_PROP_FRAME_HEIGHT)     # Height of the frames in the video stream
-        self.FPS = vidcap.get(CAP_PROP_FPS)                       # Frame rate
-        self.FOURCC = vidcap.get(CAP_PROP_FOURCC)                 # 4-character code of codec
-        self.FRAME_COUNT = vidcap.get(CAP_PROP_FRAME_COUNT)       # Number of frames in the video file
-        self.FORMAT = vidcap.get(CAP_PROP_FORMAT)                 # Format of the Mat objects returned by retrieve()
-        self.MODE = vidcap.get(CAP_PROP_MODE)                     # Backend-specific value indicating the current capture mode
-        self.BRIGHTNESS = vidcap.get(CAP_PROP_BRIGHTNESS)         # Brightness of the image (only for cameras)
-        self.CONTRAST = vidcap.get(CAP_PROP_CONTRAST)             # Contrast of the image (only for cameras)
-        self.SATURATION = vidcap.get(CAP_PROP_SATURATION)         # Saturation of the image (only for cameras)
-        self.HUE = vidcap.get(CAP_PROP_HUE)                       # Hue of the image (only for cameras)
-        self.GAIN = vidcap.get(CAP_PROP_GAIN)                     # Gain of the image (only for cameras)
-        self.EXPOSURE = vidcap.get(CAP_PROP_EXPOSURE)             # Exposure (only for cameras)
-        self.CONVERT_RGB = vidcap.get(CAP_PROP_CONVERT_RGB)       # Boolean flags indicating whether images should be converted to RGB
-        self.WHITE_BALANCE = vidcap.get(CAP_PROP_WHITE_BALANCE)   # Currently not supported
-        self.RECTIFICATION = vidcap.get(CAP_PROP_RECTIFICATION)   # Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
-
-Picamera 1.13 Documentation (Release 1.13) - https://media.readthedocs.org/pdf/picamera/latest/picamera.pdf
-API - picamera.camera Module - http://picamera.readthedocs.io/en/release-1.13/api_camera.html
-
-"""

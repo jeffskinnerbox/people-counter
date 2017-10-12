@@ -397,11 +397,9 @@ if __name__ == '__main__':
     time.sleep(args["warmup_time"])
 
     # print out your target and native resolution
+    print("camera version =", cap.version())
     print("target resolution = (width, height) =", cap.target_res())
     print("native resolution = (width, height) =", cap.native_res())
-
-    print("camera version =", cap.version())
-    print("camera resolution =", args["resolution"][0])
 
     trc.info({"line#": get_linenumber(), "source": args["source"],
               "path": args["file_in"], "src": args["video_device"]})
