@@ -19,6 +19,11 @@ For both iterations, there are visible light and infrared versions.
 explain all of this!! - https://www.raspberrypi.org/documentation/hardware/camera/
 
 # Tools
+The Pi Camera drivers are proprietary, and in a sense,
+that they do not follow any standard APIs.
+That means that applications have to be written specifically for the Raspberry Pi camera.
+Under Linux, the standard API for cameras (including web cams) is V4L (Video for Linux), and a number of applications have been written that support any camera with a V4L driver. An independent developer has now written a user space V4L driver for the Raspberry Pi camera, which is available from here3. With that driver, you can use generic Linux applications written for cameras. The driver has a few limitations: it is closed sourced, and can be a little slow because it runs as a user program rather than a kernel driver. The program worked reasonably well when I tested it and it is expected to continue to improve.
+
 If you hook your camera up to a Linux box,
 you can use `v4l2-ctld` to list the supported video formats.
 The [`v4l2-ctl` tool][05] is used to control [video4linux][04] devices,
@@ -44,7 +49,11 @@ ioctl: VIDIOC_ENUM_FRAMESIZES
 # show all the supported rsolutions
 v4l2-ctl --device /dev/video0 --list-formats-ext
 ```
-https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+* [RASPBERRY PI MJPEG AT ~30FPS](http://www.lewisroberts.com/2015/05/15/raspberry-pi-mjpeg-at-30fps/)
+* [Raspberry Pi Camera Module](https://www.geeetech.com/wiki/index.php/Raspberry_Pi_Camera_Module)
+* https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+* http://www.home-automation-community.com/surveillance-with-raspberry-pi-noir-camera-howto/
+* [How to use V4L2 Cameras on the Raspberry Pi 3 with an Upstream Kernel](https://blogs.s-osg.org/use-v4l2-cameras-raspberry-pi-3-upstream-kernel/)
 
 # API - picamera Package
 http://picamera.readthedocs.io/en/release-1.10/install3.html
