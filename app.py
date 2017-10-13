@@ -326,6 +326,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
         # pre-set ESC, Ctrl-c or 'q' to exit
         k = cv2.waitKey(30) & 0xFF
         if k == 27 or k == 99 or k == ord('q'):
+            print("\nProgram terminated by user.")
             break
 
         # update the frame count
