@@ -3,8 +3,6 @@
 # Version:      0.4.0
 #
 
-import os
-import cv2
 import argparse
 
 
@@ -22,13 +20,13 @@ def rez(s):
 
 
 def ArgParser(defaults):
-    """ This class establish a parsing mechanism for all
-    types of command line argument, switches, and options."""
+    """ This class establish a parsing mechanism for all types of command
+    line argument, switches, and options. """
 
     # construct the argument parser and parse the arguments
-    ap = argparse.ArgumentParser(description=
-                                 'This is the MassMutual Raspberry Pi \
-                                 + OpenCV people counter')
+    ap = argparse.ArgumentParser(description='This is the MassMutual \
+                                 Raspberry Pi + OpenCV people counter')
+    gp = ap.add_mutually_exclusive_group()
 
     # store actions - tuple parameters
     ap.add_argument("-z", "--resolution",
@@ -38,8 +36,8 @@ def ArgParser(defaults):
                     default=defaults["resolution"])
 
     # store actions - single parameter
-    ap.add_argument("-s", "--source",
-                    help="include if the Raspberry Pi Camera should be used",
+    gp.add_argument("-s", "--source",
+                    help="identify the sources of of the video",
                     action='store',
                     required=False,
                     choices=['file', 'usbcamera', 'picamera'],

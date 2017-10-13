@@ -8,13 +8,8 @@
 
 # Source: "People Counter" series of blog by Federico Mejia Barajas
 #         http://www.femb.com.mx/people-counter/people-counter-9-counting/
-# STYLE
-# David Goodger (in "Code Like a Pythonista" here) describes the PEP 8 recommendations as follows:
-# http://python.net/~goodger/projects/pycon/2007/idiomatic/handout.html#pep-8-style-guide-for-python-code
 #
-# joined_lower for functions, methods, attributes, variables
-# joined_lower or ALL_CAPS for constants
-# StudlyCaps for classes
+
 
 
 import os
@@ -31,7 +26,7 @@ from tracemess import get_linenumber
 from imutils.video import FPS
 
 
-# default paramsters when stating the algorithm
+# default paramsters when stating the video processing
 defaults = {
     "version": "0.3.0",                               # algorithm version number
     "platform": os.uname(),                           # host your running on
@@ -55,7 +50,7 @@ defaults = {
     "max_p_age": 5
 }
 
-# initial conditions when stating the algorithm
+# initial conditions (people count) when stating the video processing
 initials = {
     "cnt_up": 0,
     "cnt_down": 0
@@ -68,56 +63,57 @@ def calc_lines(capture, res):
     to the accurate accounting for the entry and exit of people.
     To make these zones visible to the user, boundary lines draw on the frame.
     """
-    w = res[0]
-    h = res[1]
-    print("\nw =", w, "  h =", h)
+    width = res[0]
+    height = res[1]
 
-    frameArea = h*w             # area of the frame
+    frameArea = height * width       # area of the frame
     areaTH = frameArea/250
-    print("\nframeArea =", frameArea, "  areaTH =", areaTH)
 
     # Input / output lines
-    line_up = int(2*(h/5))      # draw blue line 2/5 from the bottom
-    line_down = int(3*(h/5))    # draw red line 3/5 from the bottom
-    print("\nline_up =", line_up, "  line_down =", line_down)
+    line_up = int(2*(height/5))      # draw blue line 2/5 from the bottom
+    line_down = int(3*(height/5))    # draw red line 3/5 from the bottom
 
-    up_limit = int(1*(h/5))
-    down_limit = int(4*(h/5))
-    print("\nup_limit =", up_limit, "  down_limit =", down_limit)
+    up_limit = int(1*(height/5))
+    down_limit = int(4*(height/5))
 
     # red line coordinates calculations
     pt1 = [0, line_down]
-    pt2 = [w, line_down]
+    pt2 = [width, line_down]
     pts_L1 = numpy.array([pt1, pt2], numpy.int32)
     pts_L1 = pts_L1.reshape((-1, 1, 2))
-    print("\nRed Line: pts_L1", pts_L1)
 
     # blue line coordinates calculations
     pt3 = [0, line_up]
-    pt4 = [w, line_up]
+    pt4 = [width, line_up]
     pts_L2 = numpy.array([pt3, pt4], numpy.int32)
     pts_L2 = pts_L2.reshape((-1, 1, 2))
-    print("Blue Line: pts_L2", pts_L2)
 
     # white line coordinates calculations
     pt5 = [0, up_limit]
-    pt6 = [w, up_limit]
+    pt6 = [width, up_limit]
     pts_L3 = numpy.array([pt5, pt6], numpy.int32)
     pts_L3 = pts_L3.reshape((-1, 1, 2))
-    print("White Line: pts_L3", pts_L3)
 
     # black line coordinates calculations
     pt7 = [0, down_limit]
-    pt8 = [w, down_limit]
+    pt8 = [width, down_limit]
     pts_L4 = numpy.array([pt7, pt8], numpy.int32)
     pts_L4 = pts_L4.reshape((-1, 1, 2))
-    print("Black Line: pts_L4", pts_L4)
+
+    trc.info({"width": width, "height": height})
+    trc.info({"frameArea": frameArea, "areaTH": areaTH})
+    trc.info({"line_up": line_up, "line_down": line_down})
+    trc.info({"up_limit": up_limit, "down_limit": down_limit})
+    trc.info({"Red Line": numpy.array_str(pts_L1)})
+    trc.info({"Blue Line": numpy.array_str(pts_L2)})
+    trc.info({"Yellow Line": numpy.array_str(pts_L3)})
+    trc.info({"Black Line": numpy.array_str(pts_L4)})
 
     return line_up, line_down, up_limit, down_limit, areaTH,\
         pts_L1, pts_L2, pts_L3, pts_L4
 
 
-def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):
+def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                         # noqa: C901
 
     # calculate the placement of the counting lines
     line_up, line_down, up_limit, down_limit, areaTH,\
@@ -157,12 +153,14 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):
         # can't guarantee your camera is set for your target
         frame = cap.resize(frame, resolution)
 
+        """
         # NOTE: CAN'T DO THIS AFTER CALCULATING LINES
         # grab the frame from the threaded video file stream, resize it
-        #frame = imutils.resize(frame, width=450)
+        frame = imutils.resize(frame, width=450)
 
         # convert frame it to grayscale
-        #frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        """
 
         # write the frame to a file, as capture and without processing
         if args["video_write_off"] is False:
@@ -198,7 +196,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):
         #    CONTOURS   #
         #################
 
-        # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.                #noqa
+        # RETR_EXTERNAL returns only extreme outer flags. All child contours are left behind.     #noqa: C901
         _, contours0, hierarchy = cv2.findContours(mask2, cv2.RETR_EXTERNAL,
                                                    cv2.CHAIN_APPROX_SIMPLE)
         for cnt in contours0:
@@ -208,7 +206,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):
                 #   TRACKING    #
                 #################
 
-                # Missing add conditions for multipersons, outputs and screen inputs              #noqa
+                # Missing add conditions for multipersons, outputs and screen inputs              #noqa: C901
 
                 M = cv2.moments(cnt)
                 cx = int(M['m10']/M['m00'])
@@ -339,7 +337,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):
 
     # stop the timer and display FPS information
     fps.stop()
-    print("\telapsed time: {:.2f}".format(fps.elapsed()))
+    print("\nProgram Stopping:\telapsed time: {:.2f}".format(fps.elapsed()))
     print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
     # do the final cleanup before exiting
@@ -382,14 +380,11 @@ if __name__ == '__main__':
     trc.start(on=args["trace_on"])
     trc.heart_freq(60)
 
-    # Set Input and Output Counters
+    # set up and down counters
     cnt_up = initials["cnt_up"]
     cnt_down = initials["cnt_down"]
 
     cap = vstream.VStream(source=args["source"], path=args["file_in"],
-                          #resolution=(640, 480),
-                          #resolution=(320, 240),
-                          #resolution=(160, 128),
                           resolution=args["resolution"][0],
                           src=args["video_device"])
 
@@ -404,21 +399,12 @@ if __name__ == '__main__':
     trc.info({"line#": get_linenumber(), "source": args["source"],
               "path": args["file_in"], "src": args["video_device"]})
 
-    """
-    # Check if camera or file has opened successfully
-    if cap.isopen() is False:
-        trc.error("Error opening video stream or file")
-        trc.stop()
-        exit
-    """
-
     # Get current width and height of frame
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
     if args["video_write_off"] is False:
         # Define the codec and create VideoWriter object
-        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
         fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
@@ -426,11 +412,12 @@ if __name__ == '__main__':
                                      fourcc, 20.0, (int(width), int(height)))
 
         # Define the codec and create VideoWriter object
-        # fourcc = cv2.VideoWriter_fourcc(*'XVID')
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
         fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
         video_rec = cv2.VideoWriter(args["file_rec"],
                                     fourcc, 20.0, (int(width), int(height)))
 
-    PeopleCounter(cap, args["resolution"][0], initials["cnt_up"], initials["cnt_down"])
+    # enter the main loop of the video processing
+    PeopleCounter(cap, args["resolution"][0],
+                  initials["cnt_up"], initials["cnt_down"])

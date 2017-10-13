@@ -18,6 +18,9 @@ For both iterations, there are visible light and infrared versions.
 
 explain all of this!! - https://www.raspberrypi.org/documentation/hardware/camera/
 
+#  Camera Hardware
+https://picamera.readthedocs.io/en/release-1.13/fov.html
+
 # Tools
 The Pi Camera drivers are proprietary, and in a sense,
 that they do not follow any standard APIs.
@@ -49,8 +52,6 @@ ioctl: VIDIOC_ENUM_FRAMESIZES
 # show all the supported rsolutions
 v4l2-ctl --device /dev/video0 --list-formats-ext
 ```
-* [RASPBERRY PI MJPEG AT ~30FPS](http://www.lewisroberts.com/2015/05/15/raspberry-pi-mjpeg-at-30fps/)
-* [Raspberry Pi Camera Module](https://www.geeetech.com/wiki/index.php/Raspberry_Pi_Camera_Module)
 * https://www.raspberrypi.org/forums/viewtopic.php?t=62364
 * http://www.home-automation-community.com/surveillance-with-raspberry-pi-noir-camera-howto/
 * [How to use V4L2 Cameras on the Raspberry Pi 3 with an Upstream Kernel](https://blogs.s-osg.org/use-v4l2-cameras-raspberry-pi-3-upstream-kernel/)
@@ -62,6 +63,9 @@ http://picamera.readthedocs.io/en/release-1.10/api.html
 
 # Recording to a network stream
 http://picamera.readthedocs.io/en/release-1.10/recipes1.html#recording-to-a-network-stream
+
+# Latency
+[Understanding Video Latency: What is video latency and why do we care about it?](http://www.vision-systems.com/content/dam/VSD/solutionsinvision/Resources/Sensoray_video-latency_article_FINAL.pdf)
 
 
 
