@@ -53,6 +53,7 @@ ioctl: VIDIOC_ENUM_FRAMESIZES
 v4l2-ctl --device /dev/video0 --list-formats-ext
 ```
 * https://www.raspberrypi.org/forums/viewtopic.php?t=62364
+* https://www.raspberrypi.org/documentation/usage/camera/raspicam/README.md
 * http://www.home-automation-community.com/surveillance-with-raspberry-pi-noir-camera-howto/
 * [How to use V4L2 Cameras on the Raspberry Pi 3 with an Upstream Kernel](https://blogs.s-osg.org/use-v4l2-cameras-raspberry-pi-3-upstream-kernel/)
 

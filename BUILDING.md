@@ -1,22 +1,43 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.3.0
+Version:      0.4.0
 -->
 
-# MassMutual People Counting Build Process
+# People Counting Build Process
+This document provides step-by-step procedures to build the people-counter
+software application.
+There is also a list of hardware compoents.
+The hardware build should can be done by following the instructions
+that come with the hardware when purchased.
+
+Two version of this application have been built:
+
+* BlueRpi - does **not** include the [Optimizing OpenCV on the Raspberry Pi](https://www.pyimagesearch.com/2017/10/09/optimizing-opencv-on-the-raspberry-pi/)
+procedures and uses a ???Mb ??? PiCamera with software version 1.13
+* YellowRpi - does include the [Optimizing OpenCV on the Raspberry Pi](https://www.pyimagesearch.com/2017/10/09/optimizing-opencv-on-the-raspberry-pi/)
+procedures and uses a ???Mb ??? PiCamera with software version 1.13
 
 **This is a work in progress**
 
-rpi-loader - https://github.com/jeffskinnerbox/rpi-loader - DONE
-opencv - DONE
-jupyter - DONE
-ts_dweepy - make sure to setup with setup.py, etc. - DONE
-people-counter - the MassMutual camera based people counter
+* rpi-loader - https://github.com/jeffskinnerbox/rpi-loader
+    * fix the scripts concern the use of sudo
+    * write scripts for the loading of OpenCV, Jupyter, etc.
+* OpenCV
+    * include procedures from [Optimizing OpenCV on the Raspberry Pi](https://www.pyimagesearch.com/2017/10/09/optimizing-opencv-on-the-raspberry-pi/)
+* Jupyter
+* ts_dweepy - make sure to setup with setup.py, etc.
+* people-counter - the MassMutual camera based people counter
+* [Installing Keras with TensorFlow backend](https://www.pyimagesearch.com/2016/11/14/installing-keras-with-tensorflow-backend/)
+* [Install dlib on the Raspberry Pi](https://www.pyimagesearch.com/2017/05/01/install-dlib-raspberry-pi/)
+
 
 Videos, Pictures, Data -
 
------
+A version of this document will be posted here - https://oneconfluence.verizon.com/display/TF2017/2017/10/10/HowTo%3A+Set-up+Jupyter+and+OpenCV
 
+################################################################################
+
+-----
 ## Bill of Materials
 The materials required to build the hardware environment is as follows:
 
@@ -34,8 +55,12 @@ The materials required to build the hardware environment is as follows:
 | Case    | Night Vision PIR Camer Box Bundle B+/2/3 | $20 | [MODMYPI](https://www.modmypi.com/raspberry-pi/cases-183/raspberry-pi-b-plus2-and-3-cases-1122/modmypi-pir-night-vision-camera-box-bundle-b-plus23) |
 
 
-## Building Operating Environment - DONE
+################################################################################
+
+-----
+## Building the OS Environment - DONE
 I have written a detailed [step-by-step guide][03]
+(you'll also find it [here][04])
 on how to set up your Raspberry Pi as a "headless" computer.
 This includes configuring the RPi for my local network, updating firmware,
 loading all my favorite development tools and utilities.
@@ -48,6 +73,23 @@ You still have to download the latest version of Raspbian,
 burn it to a SD Card, and things like that.
 My objective is to ultimate create some utilities that will make this easier,
 but that will wait until another version of this script.
+
+Some of the ideas for this script were taken from the following:
+"[Scripts to update the Raspberry Pi and Debian-based Linux Distros][05]".
+
+### Step 0: Use 32G SD-Card or Larger
+The tools you are about to install take up a great deal of space,
+and since this is for video applications,
+anything you record will consume siginificant disk space.
+The OpenCV and the OpenCV Contribution packages alone are very large (430M + 120M).
+
+A standard Raspberry Pi install will likely use over 4GB of the available space,
+and then you add your personal tools and more space is used up.
+I have found that attempting to load OpenCV and the OpenCV Contribution package
+will require 10GB of disk space.
+If your considering using Jupyter and some of the popular Python libraries,
+your looking at 11 to 12GB of SD-Card storage being consumed.
+My advice is to consider using a 32G SD-Card.
 
 ### Step 1: Download Raspberry Pi Image - DONE
 Before you can load a copy of the latest Raspberry Pi image onto your micro SD Card,
@@ -128,7 +170,7 @@ where we need to write the Raspbian image to the SD Card
 
 ```bash
 # go to directory with the RPi image
-cd /home/jeff/Downloads
+cd /home/jeff/Downloads/Raspbian
 
 # unmount the sd card reader
 sudo umount /dev/sdj1
@@ -159,29 +201,84 @@ outline in the next step.
 [Adafruit has good description on how to use a console cable]17]
 and the how to [enable the UART for the console][18].
 
-### Step 3: Run the part-1.sh Script - DONE
+### Step 3: Install rpi-loader Script - DONE
+To minimize the amount of keyboard entry and eliminate "fat finger" errors,
+we use several Bash Shell scripts for building the Raspberry Pi
+operating environment, required software packages,
+and the people counting application.
+Those scripts need to be downloaded and install on both a local
+Linux machine, which I'll call `desktop`, and the Raspberry Pi.
+
+The first install is on `desktop` as follows:
+
 ```bash
+# change direct to where the rpi-loader will be installed
+cd ~/src
+
+# clone the rpi-loader software
+git clone https://github.com/jeffskinnerbox/rpi-loader.git
+```
+
+Now you must do the final set of the install by running the `install.sh` script.
+Run it and just answer the questions when prompted.
+
+```bash
+# enter the rpi-loader directory
+cd rpi-loader
+
+# complete the install
+./install.sh
+```
+
+### Step 4: Run the part-1.sh Script - DONE
+We now execute the first and only script to run on the local system
+(aka `desktop`) while the against the SD Card.
+This sets up the hostname and networking features for the Raspberry Pi.
+
+```bash
+# update the sd-card with networking information
 sudo ~/src/rpi-loader/part-1.sh
 ```
 
 This completes the operations that will be performed on the SD-Card
 while on `desktop`.
-Next will place the SD-Card in the Raspberry Pi and complete the loading from there.
+Next will place the SD-Card in the Raspberry Pi
+and complete all the remaining loading from there.
 
-### Step 4: Clone the rpi-loader Tool - DONE
-Place the SD-Card into the Raspberry Pi, power it up, and login via ssh.
+### Step 5: Start Up the Raspberry Pi - DONE
+Place the SD-Card into the Raspberry Pi, power it up,
+and login via ssh via WiFi or via Ethernet.
+The hostname will be what you provided during the running of the `part-1.sh` script.
+You will login as the `pi` user and password will be `raspberry`.
 
-From Github, you now need to install the `rpi-loader` scripts.
+### Step 6: Clone the rpi-loader Tool - DONE
+The `rpi-loader` will be heavely used on the Raspberry Pi for installing software,
+but you now need to install it first.
 
 ```bash
+# change direct to where the rpi-loader will be installed
 cd ~
 mkdir src
 cd src
+
+# clone the rpi-loader software
 git clone https://github.com/jeffskinnerbox/rpi-loader.git
 ```
-### Step 5: Run the part-2.sh Script - DONE
+
+Now you must do the final set of the install by running the `install.sh` script.
+Run it and just answer the questions when prompted.
+
+```bash
+# enter the rpi-loader directory
+cd rpi-loader
+
+# complete the install
+./install.sh
+```
+
+### Step 7: Run the part-2.sh Script - DONE
 Now your going to run `raspi-config` as a non-interactive command line tool
-and set the time zone of the Raspberry Pi.
+setting multiple low level options on the Raspberry Pi.
 
 ```bash
 # run raspi-config tool and ste the time zone
@@ -191,94 +288,78 @@ sudo ~/src/rpi-loader/part-2.sh
 sudo shutdown -r now
 ```
 
->**NOTE:** You can run `raspi-config` as a non-interactive command line tool.
+>**NOTE:** This script runs `raspi-config` as a non-interactive command line tool.
 See "[Instructions of command-line in Raspi-config][01]"
 and you notice that the command takes the form
 `sudo raspi-config nonint <option> [<parameter>]`.
 Key to understanding how to use this command are the `#define`
 statments found within "[How could one automate the raspbian raspi-config setup?][02]".
-This capabilitiy is not documented, and as such,
-could change without notice.
+**This capabilitiy is not documented, and as such,
+could change without notice.**
 
-### Step 6: Run the part-3.sh Script - DONE
+### Step 8: Run the part-3.sh Script - DONE
+Now we will update the Linux package list and the currently installed packages.
 
 ```bash
-# run raspi-config tool and set the time zone
+# update currently install linux packages
 sudo ~/src/rpi-loader/part-3.sh
 
 # if packages were installed, reboot the raspberry pi
 sudo shutdown -r now
 ```
 
-### Step 7: Run the part-4.sh Script - DONE
+### Step 9: Run the part-4.sh Script - DONE
+Now we'll update the Raspberry Pi firmware.
 
 ```bash
-# xxx
+# update raspberry pi firmware
 sudo ~/src/rpi-loader/part-4.sh
 
 # if if new firmware was installed, reboot the raspberry pi
 sudo shutdown -r now
 ```
 
-### Step 8: Run the part-5.sh Script - DONE
+### Step 10: Run the part-5.sh Script - DONE
+Now we'll install multiple Linux packages that will likely see the greatest use.
 
 ```bash
-# xxx
+# load linux packages
 sudo ~/src/rpi-loader/part-5.sh
+```
 
-# xxx
+### Step 11: Run the part-5A.sh Script - DONE
+Install your personal tools for your Linux environment.
+
+>**NOTE:** We are not using `sudo` to run this script.
+The tools your installing here should be owned by `pi` and not `root`.
+
+```bash
+# install your tools
+~/src/rpi-loader/part-5A.sh
+
+# copy scripts for python virual env
+sudo cp ~/.bash/virtualenvwrapper.sh ~/.bash/virtualenvwrapper_lazy.sh /usr/local/bin
+
+# make your bash tools active now
 source ~/.bashrc
 ```
 
-### Sources of Inspiration - DONE
-Some of the ideas for this script were taken from the following sources:
+This completes the building of the Raspberry Pi's foundational operating environment.
+We can now layer on additional tools for our applications.
 
-* [Scripts to update the Raspberry Pi and Debian-based Linux Distros](https://blog.robseder.com/2015/09/29/scripts-to-update-the-raspberry-pi-and-debian-based-linux-distros/)
+################################################################################
 
-## Building OpenCV Environment
-# Installing OpenCV and Jupyter on a Raspberry Pi
-This solution requires [OpenCV][33] to be used with the Rasperry Pi Camera.
+-----
+## Building the OpenCV Environment - DONE
+This solution requires [OpenCV][33] to be used with the Raspberry Pi Camera.
 First of all, hopefully its one of the [RPi Board Cameras][44].
 While you could use a cheaper [USB-Webcam on the RPi][38],
-you'll get none of the benfits of the Raspberry Pi's native GPU or [Graphics Processing Unit][45].
+you'll get none of the benefits of the Raspberry Pi's native GPU or [Graphics Processing Unit][45].
 
-My sources of insperation for the steps below are from:
+My major source of inspiration for the steps below are from:
+"[Optimizing OpenCV on the Raspberry Pi][06]".
 
-* [Accessing the Raspberry Pi Camera with OpenCV and Python](http://www.pyimagesearch.com/2015/03/30/accessing-the-raspberry-pi-camera-with-opencv-and-python/)
-* [Raspbian Stretch: Install OpenCV 3 + Python on your Raspberry Pi](http://www.pyimagesearch.com/2017/09/04/raspbian-stretch-install-opencv-3-python-on-your-raspberry-pi/)
-* [Installing OpenCV on your Raspberry Pi Zero](http://www.pyimagesearch.com/2015/12/14/installing-opencv-on-your-raspberry-pi-zero/)
-* [Best resources for learning OpenCV (Python and C++)](http://jacksimpson.co/best-resources-for-learning-opencv-python-and-c/)
-
-## Step 0: Disk Space - DONE
-The OpenCV and the OpenCV Contribution pakages are very large (430M + 120M).
-If your like me, you'll be using an 8GB SD card on the Raspberry Pi Zero
-and 16GB SD-Card for all the other RPi's.
-A standard Raspberry Pi install will likely use over 4GB of the available space,
-and then you add your personal tools and more space is used up.
-I have found that attempting to load OpenCV and the OpenCV Contribution pakage
-will require 10GB of disk space.
-If your considering using Jupyter and some of the popular Python libraries,
-your looking at 11 to 12GB of SD-Card storage being consumed.
-My advice is to consider using a 32G SD-Card.
-
-If your in the middle of your install,
-and your desperately looking for more space,
-consider deleting both the LibreOffice and Wolfram engines
-to free up about 1G of space, as shown below:
-
-```bash
-# free up some disk space by remove some packages
-sudo apt-get purge wolfram-engine
-sudo apt-get purge libreoffice*
-sudo apt-get clean
-sudo apt-get autoremove
-```
-
-In addition, once you have successfully compiled OpenCV,
-you can delete the source directory,
-as outlined in Step 6 below.
-
-## Step 1: Install OpenCV Dependencies - DONE
+### Step 1: Install OpenCV Dependencies - DONE
 The first thing we should do is update and upgrade any existing packages,
 followed by updating the Raspberry Pi firmware.
 
@@ -291,82 +372,43 @@ sudo rpi-update
 sudo shutdown -r now
 ```
 
-Now let install OpenCV dependency packages:
+Now let install OpenCV dependency packages.
 
 ```bash
-# install dev tool packages you'll need for opencv
-sudo apt-get install build-essential git cmake pkg-config
-
-# install image processing packages
-sudo apt-get install libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev
-
-# install video processing packages
-sudo apt-get install libavutil-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev
-sudo apt-get install libxvidcore-dev libx264-dev
-
-# highgui used to display images to screen and build basic GUIs
-sudo apt-get install libgtk2.0-dev libgtk-3-dev
-
-# packages for opencv matrix operations
-sudo apt-get install libatlas-base-dev gfortran
-
-# get python 2.7 and python 3 header files so we can compile opencv with python bindings
-sudo apt-get install python2.7-dev python3-dev
-
-# to manage software packages for python 3, let’s install pip and virtual env tool
-sudo apt-get install python3-pip
-sudo apt-get install python3-venv
-
-# to ensure a robust python programming environment
-sudo apt-get install build-essential libssl-dev libffi-dev python-dev
+# install opencv dependency packages
+sudo ~/src/rpi-loader/part-6.sh
 ```
 
-## Step 2: Download OpenCV from Source Code - DONE
-Lets grab the [latest version of OpenCV][41] from GitHub and install it.
+### Step 4: Install and Compile OpenCV Source Code - DONE
+We are now ready to compile and install OpenCV.
+We will grab the [latest version of OpenCV][41] from GitHub and install it.
 Make sure your `opencv` and `opencv_contrib` versions match up,
 otherwise you will run into errors during compilation.
 
+The script used below contains `make` [recommended flags][06]
+intended to optimize the performance of OpenCV on the Raspberry Pi.
+Specifically, flags to make us of Arm CPU features [NEON][07] and [VFPV3][08].
+There is an expected 30% to 45% boost in performance.
+
+>**NOTE:** We are not using `sudo` to run this script.
+The tools your installing here should be owned by `pi` and not `root`.
+
 ```bash
-# move to the direct where opencv will be installed
-cd ~/src
-
-# download and install opencv
-wget -O opencv.zip https://github.com/opencv/opencv/archive/3.3.0.zip
-unzip opencv.zip
-
-# download and install opencv_contrib
-wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/3.3.0.zip
-unzip opencv_contrib.zip
-
-# remove zip files
-rm opencv.zip opencv_contrib.zip
+# install and compile opencv source code
+~/src/rpi-loader/part-7.sh
 ```
 
-## Step 3: Installing NumPy on your Raspberry Pi - DONE
-Our only Python dependency is NumPy, a Python package used for numerical processing.
-We attempt to install this now but it may have already happen
-via the earlier installs (this will take several minutes):
+This script will run an exceptionally long time;
+as long as four hours.
+(This could run faster if you increase the swap space
+and use `make -j` but this does have draw backs.
+Read more about this [here][06].)
+
+Next we'll move the OpenCV libraries and executables to their proper location.
 
 ```bash
-# install python numpy package
-sudo -H pip3 install numpy
-```
-
-## Step 4: Compile and Install OpenCV - DONE
-We are now ready to compile and install OpenCV.
-
-```bash
-# create and enter the directoy where opencv will be built
-cd ~/src/opencv-3.3.0
-mkdir build
-cd build
-
-# create the makefile for the build
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D INSTALL_PYTHON_EXAMPLES=ON -D OPENCV_EXTRA_MODULES_PATH=~/src/opencv_contrib-3.3.0/modules -D BUILD_EXAMPLES=ON ..
-
-# execute the make file
-# note: if you have a compiler error, do "make clean" and then just "make"
-make
+# enter directory where opencv was built
+cd ~/src/opencv-3.3.0/build/
 
 # install opencv executables and libraries
 sudo make install
@@ -401,7 +443,7 @@ cd /usr/local/lib/python3.5/dist-packages/
 sudo mv cv2.cpython-35m-arm-linux-gnueabihf.so cv2.so
 ```
 
-## Step 5: Test OpenCV 3 Install - DONE
+### Step 5: Test OpenCV 3 Install - DONE
 To validate the install of OpenCV and its binding with Python3,
 open up a new terminal, execute the `source` and `workon` commands,
 and then attempt to import the Python + OpenCV bindings:
@@ -434,7 +476,9 @@ that come with the RPi:
 ```bash
 # test the raspberry pi camer to make sure it works
 raspistill -o ~/tmp/output.jpg
-display output.jpg
+
+# view the image captured
+display ~/tmp/output.jpg
 ```
 
 With the last command, you should see a picture displayed.
@@ -447,16 +491,18 @@ and execute the following commands:
 
 ```bash
 # install picamera modual with the array sub-module
+# (this may run long as python creates wheels for all packages)
 pip3 install "picamera[array]"
 ```
 The standard picamera module provides methods to interface with the camera,
 but we need the array sub-module so that we can utilize OpenCV.
-With our Python bindings, OpenCV represents images as [NumPy][49] arrays
+With our Python bindings,
+OpenCV represents images as [NumPy][49] arrays
 and the array sub-module enables this.
 
 To test if the Python `picamera` module is up and working with OpenCV,
-run place the following in `~/tmp/test_image.py`
-and running `python3 ~/tmp/test_image.py`:
+run place the code below in the file `~/tmp/test_image.py`
+and execute it with `python3 ~/tmp/test_image.py`:
 
 ```python
 # import the necessary packages
@@ -470,7 +516,7 @@ camera = PiCamera()
 rawCapture = PiRGBArray(camera)
 
 # allow the camera to warmup
-time.sleep(0.1)
+time.sleep(0.5)
 
 # grab an image from the camera
 camera.capture(rawCapture, format="bgr")
@@ -481,7 +527,8 @@ cv2.imshow("Image", image)
 cv2.waitKey(0)
 ```
 
-You can also test the video capabilities via this script `~/tmp/test_video.py`:
+You can also test the video capabilities via the script below
+(execute with `python3 ~/tmp/test_video.py`):
 
 ```python
 # import the necessary packages
@@ -497,7 +544,7 @@ camera.framerate = 32
 rawCapture = PiRGBArray(camera, size=(640, 480))
 
 # allow the camera to warmup
-time.sleep(0.1)
+time.sleep(0.5)
 
 # capture frames from the camera
 for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
@@ -517,7 +564,7 @@ for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=
 		break
 ```
 
-## Step 7: Uploading Test Data - DONE
+### Step 7: Uploading Test Data
 OpenCV is all about processing visual images,
 so your going to need test data,
 potential a great deal of it, in the form of pictures and videos.
@@ -544,8 +591,12 @@ scp ~/Pictures/* pi@BlueRPi:~/Pictures
 scp ~/Videos/* pi@BlueRPi:~/Videos
 scp ~/Data/* pi@BlueRPi:~/Data
 ```
+################################################################################
 
-# Install TS_Dweepy
+-----
+## Building the People-Counter Application
+Now its time to install the People-Counter applicatiion.
+
 Dweepy is a simple Python library for [dweet.io][23]
 and modeled after the [BugLabs Javascript library][21].
 The developers of Dweepy claim they have fully test it
@@ -556,52 +607,56 @@ What we'll install here is the equivalent of Dweepy but supporting
 Effectively, the Dweepy library was modified to no longer point to `https://dweet.io`
 and instead point to `https://thingspace.io`.
 
-## Step 1: Install TS_Dweepy Code - DONE
-The software for `ts_dweepy` is on GitHub:
+### Step 1: Install TS_Dweepy Code - DONE
+The software for [`ts_dweepy` is on GitHub][09]
+and this downloads it, builds the Python libarary,
+installs it , and cleans up afer itslef.
+
+>**NOTE:** We are not using `sudo` to run this script.
+The tools your installing here should be owned by `pi` and not `root`.
 
 ```bash
-# go to the directory you wish to install ts_dweepy code
-cd ~
-mkdir src
-cd src
-
-# clone the ts_dweepy github repository
-git clone https://github.com/jeffskinnerbox/ts_dweepy.git
+# install ts_dweepy
+~/src/rpi-loader/part-8.py
 ```
 
-## Step 2: Build, Install, and Test Library - DONE
-Once you have a copy of the `ts_dweepy` source code,
-you can install it into your Python site-packages easily
-using the [Python Distribution Utilities (Distutils)][25]
-script called [`setup.py`][24]
+### Step 2: Install People-Counter
 
 ```bash
-# enter the ts_dweepy directory
-cd ~/src/ts_dweepy
+# enter directory where people-counter will be stored
+cd ~/src
 
-# build the ts_dweepy python package
-sudo python3 setup.py build
-
-# install the package in your local python library
-sudo python3 setup.py install
+# install people-counter
+git clone https://github.com/jeffskinnerbox/people-counter.git
 ```
 
-The source code provides some test routines.
-To test the code,
-run the script in the `tests` directory.
-A successful test run give you **no output**.
+### Step 3: Test People-Counter
 
-```bash
-# run the test script to assure the install is correct
-cd tests
-python3 test_ts_dweepy.py
+################################################################################
 
-# clean up unneeded file and directories
-cd ~/src/ts_dweepy
-sudo rm -f -r ts_dweepy.egg-info build dist
-```
 
-# Install Jupyter Notebook
+# Node Binding Using node-opencv
+[node-opencv][42] is OpenCV's bindings for Node.js.
+
+
+* https://github.com/drejkim/pyenv-opencv/blob/master/detection.py
+* [node-opencv GitHub](https://github.com/peterbraden/node-opencv)
+* [node-opencv documentation](http://peterbraden.github.io/node-opencv/)
+* [Real-time face detection using OpenCV, Node.js, and WebSockets](http://drejkim.com/blog/2014/12/02/real-time-face-detection-using-opencv-nodejs-and-websockets/)
+* [face-detection-node-opencv GitHub](https://github.com/drejkim/face-detection-node-opencv)
+
+################################################################################
+
+# Installing OpenCV and Jupyter on Ubuntu
+I also want OpenCV on my Linux desktop which is running Ubuntu 17.04.
+I used the installation procedure below, which was derived from
+[this website](http://milq.github.io/install-opencv-ubuntu-debian/).
+
+
+################################################################################
+
+-----
+## Building the Jupyter Notebook Environment
 Pewrsonally, I want a interactive and feature rich environment for doing my OpenCV work,
 and I found that in [Jupyter Notebook][55] does the trick.
 Just like the OpenCV package, giving a proper introduction to Jupyter Notebook
@@ -622,7 +677,7 @@ Another nice fact is that Jupyter Notebook files
 (i.e. `*.ipynb`) will render automatically on GitHub/Gist ([example][53])
 giving you a public way to share or .
 
-## Step 1: Install Jupyter and Supporting Packages - DONE
+### Step 1: Install Jupyter and Supporting Packages
 Installing Jupyter Notebook on your computer is documented [here][50].
 For new users, they highly recommend installing it via [Anaconda][51],
 but I used the following procedure:
@@ -639,7 +694,7 @@ sudo pip3 install matplotlib seaborn pandas imutils
 sudo pip3 install scipy scikit-learn              # scikit-learn didn't build for some reason
 ```
 
-# Step 2: Test Jupyter - DONE
+### Step 2: Test Jupyter
 Your ready now to start the Jupyter Notebook.
 This can be done via several ways.
 The easiest is to just enter `jupyter notebook`
@@ -686,18 +741,7 @@ You should get a popup window with the Raspberry Pi camera streaming live video.
 * [Running a notebook server](https://jupyter-notebook.readthedocs.io/en/stable/public_server.html)
 * [Jupyter Notebook on remote server](https://coderwall.com/p/y1rwfw/jupyter-notebook-on-remote-server)
 
-
-
-# Node Binding Using node-opencv
-[node-opencv][42] is OpenCv's bindings for Node.js.
-
-
-* https://github.com/drejkim/pyenv-opencv/blob/master/detection.py
-* [node-opencv GitHub](https://github.com/peterbraden/node-opencv)
-* [node-opencv documentation](http://peterbraden.github.io/node-opencv/)
-* [Real-time face detection using OpenCV, Node.js, and WebSockets](http://drejkim.com/blog/2014/12/02/real-time-face-detection-using-opencv-nodejs-and-websockets/)
-* [face-detection-node-opencv GitHub](https://github.com/drejkim/face-detection-node-opencv)
-
+################################################################################
 ################################################################################
 
 * [Install guide: Raspberry Pi 3 + Raspbian Jessie + OpenCV 3](http://www.pyimagesearch.com/2016/04/18/install-guide-raspberry-pi-3-raspbian-jessie-opencv-3/)
@@ -713,112 +757,6 @@ You should get a popup window with the Raspberry Pi camera streaming live video.
 ################################################################################
 
 
-# Installing OpenCV and Jupyter on Ubuntu
-I also want OpenCV on my Linux desktop which is running Ubuntu 17.04.
-I used the installation procedure below, which was derived from
-[this website](http://milq.github.io/install-opencv-ubuntu-debian/).
-
-```bash
-################################# Update Linux #################################
-
-sudo apt-get -y update
-sudo apt-get -y upgrade
-sudo apt-get -y dist-upgrade
-sudo apt-get -y autoremove
-
-######################### Install OpenCV Dependencies ##########################
-
-# required build tools
-sudo apt-get install -y build-essential cmake
-
-# GUI (if you want to use GTK instead of Qt, replace 'qt5-default' with 'libgtkglext1-dev' and remove '-DWITH_QT=ON' option in CMake)
-sudo apt-get install -y qt5-default libvtk6-dev
-
-# Media I/O
-sudo apt-get install -y zlib1g-dev libjpeg-dev libwebp-dev libpng-dev libtiff5-dev libjasper-dev libopenexr-dev libgdal-dev
-
-# NOTE: At the time of this install, ibjasper-dev was not available for Ubuntu 17.04.
-# I needed to install the package from an earlier release.  I did the following
-# echo "deb http://us.archive.ubuntu.com/ubuntu/ yakkety universe" | sudo tee -a /etc/apt/sources.list
-# sudo apt-get update
-# sudo apt-get install libjasper-dev
-
-# Video I/O
-sudo apt-get install -y libdc1394-22-dev libavcodec-dev libavformat-dev libswscale-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev yasm libopencore-amrnb-dev libopencore-amrwb-dev libv4l-dev libxine2-dev
-
-# Parallelism and linear algebra libraries
-sudo apt-get install -y libtbb-dev libeigen3-dev
-
-# get python 2.7 and python 3 header files so we can compile opencv with python bindings
-sudo apt-get install python2.7-dev python3-dev
-
-# to manage software packages for python 3, let’s install pip and virtual env tool
-sudo apt-get install python3-pip
-sudo apt-get install python3-venv
-
-# Java
-sudo apt-get install -y ant default-jdk
-
-# Documentation
-sudo apt-get install -y doxygen
-
-################################ Install OpenCV ################################
-
-# move to the direct where opencv will be installed
-cd ~/src
-
-# download and install opencv
-wget -O opencv.zip https://github.com/opencv/opencv/archive/3.3.0.zip
-unzip opencv.zip
-
-# download and install opencv_contrib
-wget -O opencv_contrib.zip https://github.com/opencv/opencv_contrib/archive/3.3.0.zip
-unzip opencv_contrib.zip
-
-# remove zip files
-rm opencv.zip opencv_contrib.zip
-
-# create and enter the directoy where opencv will be built
-cd ~/src/opencv-3.3.0
-mkdir build
-cd build
-
-# create the makefile for the build
-cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D INSTALL_PYTHON_EXAMPLES=ON -D OPENCV_EXTRA_MODULES_PATH=~/src/opencv_contrib-3.3.0/modules -D BUILD_EXAMPLES=ON ..
-
-# execute the make file
-# note: if you have a compiler error, do "make clean" and then just "make"
-make -j4
-
-# install opencv executables and libraries
-sudo make install
-
-# creates the necessary links and cache to the most recent shared libraries
-sudo ldconfig
-```
-
-Provided the above steps finished without error,
-OpenCV should now be installed in `/usr/local/lib/python3.5/dist-packages/`.
-You should verify this:
-
-```bash
-# verify the opencv install
-$ ls -l /usr/local/lib/python3.5/dist-packages/
-total 3876
--rw-r--r-- 1 root staff 3968464 Sep  5 17:11 cv2.cpython-35m-x86_64-linux-gnu.so
-```
-
-For some reason (bug in the CMake script?),
-the OpenCV 3 file for Python 3+ binding has the extention `.so`
-and named `cv2.cpython-35m-x86_64-linux-gnu.so` (or some variant of)
-rather than simply `cv2.so` like  it should.
-This needs to be fixed:
-
-```bash
-# enter the target directory and rename the file
-cd /usr/local/lib/python3.5/dist-packages/
-sudo mv cv2.cpython-35m-x86_64-linux-gnu.so cv2.so
-```
 
 # Other Things
 * [Installing Keras with TensorFlow backend](https://www.pyimagesearch.com/2016/11/14/installing-keras-with-tensorflow-backend/)
@@ -830,12 +768,12 @@ sudo mv cv2.cpython-35m-x86_64-linux-gnu.so cv2.so
 [01]:https://www.52pi.com/blog/19-instructions-of-command-line-in-raspi-config
 [02]:https://raspberrypi.stackexchange.com/questions/28907/how-could-one-automate-the-raspbian-raspi-config-setup
 [03]:http://jeffskinnerbox.me/posts/2016/Apr/27/howto-set-up-the-raspberry-pi-as-a-headless-device/
-[04]:
-[05]:
-[06]:
-[07]:
-[08]:
-[09]:
+[04]:https://oneconfluence.verizon.com/display/TF2017/2017/09/05/HowTo%3A+Set-up+the+Raspberry+Pi+as+a+Headless+Device
+[05]:https://blog.robseder.com/2015/09/29/scripts-to-update-the-raspberry-pi-and-debian-based-linux-distros/
+[06]:https://www.pyimagesearch.com/2017/10/09/optimizing-opencv-on-the-raspberry-pi/
+[07]:https://developer.arm.com/technologies/neon
+[08]:https://developer.arm.com/technologies/floating-point
+[09]:https://github.com/jeffskinnerbox/ts_dweepy
 [10]:
 [11]:https://www.raspberrypi.org/blog/raspbian-stretch/
 [12]:https://www.raspberrypi.org/downloads/raspbian/
