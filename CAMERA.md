@@ -16,7 +16,8 @@ and an [8-megapixel Camera Module v2 was released in 2016][02].
 For both iterations, there are visible light and infrared versions.
 
 
-explain all of this!! - https://www.raspberrypi.org/documentation/hardware/camera/
+* explain all of this!! - https://www.raspberrypi.org/documentation/hardware/camera/
+* [Vision Campus](https://www.youtube.com/playlist?list=PLULhsSsX_9ge4g9maUkFGGLaG5S8_CiAC)
 
 #  Camera Hardware
 https://picamera.readthedocs.io/en/release-1.13/fov.html
