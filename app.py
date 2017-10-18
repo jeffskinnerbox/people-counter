@@ -303,7 +303,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
                     defaults["font"], 0.35, defaults["color_red"], 1)
 
         if args["show"] is True:
-            cv2.imshow('Frame', frame)
+            cv2.imshow('People Counter', frame)
             #cv2.imshow('Frame', cv2.resize(frame, (640, 480)))
 
             # show the mask
@@ -316,6 +316,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
         # pre-set ESC, Ctrl-c or 'q' to exit
         k = cv2.waitKey(30) & 0xFF
         if k == 27 or k == 99 or k == ord('q'):
+            print("\nProgram terminated by user.")
             break
 
         # update the frame count
@@ -345,9 +346,10 @@ if __name__ == '__main__':
         defaults["path"] = "/home/jeff/Videos"
     elif os.uname()[1] == "BlueRpi":
         defaults["path"] = "/home/pi/Videos"
+    elif os.uname()[1] == "YellowRpi":
+        defaults["path"] = "/home/pi/Videos"
     else:
-        print("This program currently only works on\
-              \"desktop\" and \"BlueRpi\" ... Exiting")
+        print("This program currently only works on \"desktop\" and \"BlueRpi\" ... Exiting")
         exit(1)
 
     # parse your command line options, arguments and, switches
