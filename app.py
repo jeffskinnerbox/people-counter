@@ -140,7 +140,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
 
     # loop over the frames from the video stream or file
     while cap.more():
-        trc.time_start(mess={"line#": get_linenumber()})
+        #trc.time_start(mess={"line#": get_linenumber()})
 
         # send a heartbeat when it's time
         trc.heartbeat({"text": "Still alive!!", "time":
@@ -228,21 +228,11 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
                                     "direction": "up",
                                     "time": time.strftime("%Y-%m-%d %H:%M:%S",
                                     time.gmtime())}})
-                                trc.info({"line#": get_linenumber(),
-                                        "total count": {"enter": cnt_up,
-                                        "exit": cnt_down,
-                                        "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                        time.gmtime())}})
                             elif i.going_DOWN(line_down, line_up) is True:
                                 cnt_down += 1
                                 trc.feature({"line#": get_linenumber(),
                                         "object": {"id": i.getId(),
                                         "direction": "down",
-                                        "time": time.strftime("%Y-%m-%d %H:%M:%S",
-                                        time.gmtime())}})
-                                trc.info({"line#": get_linenumber(),
-                                        "total count": {"enter": cnt_up,
-                                        "exit": cnt_down,
                                         "time": time.strftime("%Y-%m-%d %H:%M:%S",
                                         time.gmtime())}})
                             break
@@ -330,10 +320,9 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
 
         # update the frame count
         fps.update()
-        trc.info({"frame no.": fps._numFrames})
 
-        trc.time_stop(mess={"line#": get_linenumber()})
-        trc.time_elapsed()
+        #trc.time_stop(mess={"line#": get_linenumber()})
+        #trc.time_elapsed()
 
     # stop the timer and display FPS information
     fps.stop()
