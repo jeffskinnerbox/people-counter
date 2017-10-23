@@ -32,7 +32,7 @@ defaults = {
     "platform": os.uname(),                           # host your running on
     "trace_on": False,                                # turn on trace messaging
     "show": False,                                    # turn on video display
-    "video_write_off": 'store_false',                 # turn on trace messaging
+    "video_write_on": 'store_false',                  # turn on video storage
     "path": "/path/to/videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
@@ -163,7 +163,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
         """
 
         # write the frame to a file, as capture and without processing
-        if args["video_write_off"] is False:
+        if args["video_write_on"] is True:
             video_rec.write(frame)
 
         for i in persons:
@@ -310,7 +310,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
             # cv2.imshow('Mask', mask)
 
         # write the frame after it has been processed
-        if args["video_write_off"] is False:
+        if args["video_write_on"] is True:
             video_recP.write(frame)
 
         # pre-set ESC, Ctrl-c or 'q' to exit
@@ -333,7 +333,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
     # do the final cleanup before exiting
     trc.stop()
     cap.stop()
-    if args["video_write_off"] is False:
+    if args["video_write_on"] is True:
         video_rec.release()
         video_recP.release()
     cv2.destroyAllWindows()
@@ -394,7 +394,7 @@ if __name__ == '__main__':
     width = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
     height = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
 
-    if args["video_write_off"] is False:
+    if args["video_write_on"] is True:
         # Define the codec and create VideoWriter object
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')

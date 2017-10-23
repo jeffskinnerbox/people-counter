@@ -72,11 +72,11 @@ def ArgParser(defaults):
                     default=defaults["warmup_time"])
 
     # switches actions - store_true / store_false
-    ap.add_argument("-p", "--video_write_off",
+    ap.add_argument("-p", "--video_write_on",
                     help="turn off the writing of video files \
                     (even when file name is provided)",
                     action='store_true',
-                    default=defaults["video_write_off"])
+                    default=defaults["video_write_on"])
     ap.add_argument("-x", "--show",
                     help="show the real-time video",
                     action='store_true',
