@@ -19,11 +19,11 @@ import time
 import numpy
 import vstream
 import myperson
-from argparser import ArgParser
 import datetime
 import tracemess                                      # for debugging
-from tracemess import get_linenumber
 from imutils.video import FPS
+from argparser import ArgParser
+from tracemess import get_linenumber
 
 
 # default paramsters when stating the video processing
@@ -31,7 +31,7 @@ defaults = {
     "version": "0.3.0",                               # algorithm version number
     "platform": os.uname(),                           # host your running on
     "trace_on": False,                                # turn on trace messaging
-    "show": True,                                     # turn on video display
+    "show": False,                                    # turn on video display
     "video_write_off": 'store_false',                 # turn on trace messaging
     "path": "/path/to/videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed

@@ -79,7 +79,7 @@ def ArgParser(defaults):
                     default=defaults["video_write_off"])
     ap.add_argument("-x", "--show",
                     help="show the real-time video",
-                    action='store_false',
+                    action='store_true',
                     default=defaults["show"])
     ap.add_argument("-y", "--trace_on",
                     help="turn on tracing",
