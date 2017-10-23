@@ -1,6 +1,6 @@
 <!--
 Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-Version:      0.4.0
+Version:      0.4.1
 -->
 
 * [IPython's magic functions](http://cotique.me/blog/ipython-magic)

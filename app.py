@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.4.0
+# Version:      0.4.1
 #
 # USAGE:
 #     python3 app.py -s picamera  -  using pi camera and no trace messages

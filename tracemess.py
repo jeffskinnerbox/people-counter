@@ -1,6 +1,6 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.4.0
+# Version:      0.4.1
 #
 # SOURCES
 #    https://stackoverflow.com/questions/3056048/filename-and-line-number-of-python-script

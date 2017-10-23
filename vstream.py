@@ -1,6 +1,6 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.4.0
+# Version:      0.4.1
 #
 # Source: "Faster video file FPS with cv2.VideoCapture and OpenCV" blog by Adrian Rosebrock
 #         https://www.pyimagesearch.com/2017/02/06/faster-video-file-fps-with-cv2-videocapture-and-opencv

@@ -1,6 +1,6 @@
 #
 # Maintainer:   jeffskinnerbox@yahoo.com / www.jeffskinnerbox.me
-# Version:      0.4.0
+# Version:      0.4.1
 #
 # Source: "People Counter" series of blog by Federico Mejia Barajas
 #         http://www.femb.com.mx/people-counter/people-counter-9-counting/
