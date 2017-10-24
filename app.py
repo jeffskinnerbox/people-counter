@@ -36,6 +36,7 @@ defaults = {
     "path": "/path/to/videos",                        # path to video storage
     "file_in": "People-Walking-Shot-From-Above.mp4",  # video to be processed
     "file_rec": "recording.mp4",                      # video before processing
+    "file_recM": "recordingM.mp4",                    #
     "file_recP": "recordingP.mp4",                    # video after processing
     "warmup_time": 1.0,                               # sec for camera warm up
     "device_no": 0,                                   # usb video device number
@@ -304,10 +305,13 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
 
         if args["show"] is True:
             cv2.imshow('People Counter', frame)
-            #cv2.imshow('Frame', cv2.resize(frame, (640, 480)))
 
             # show the mask
-            # cv2.imshow('Mask', mask)
+            #cv2.imshow('Mask', mask)
+
+        # write the mask
+        if args["video_write_on"] is True:
+            video_recM.write(mask)
 
         # write the frame after it has been processed
         if args["video_write_on"] is True:
@@ -327,7 +331,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
 
     # stop the timer and display FPS information
     fps.stop()
-    print("\nProgram Stopping:\telapsed time: {:.2f}".format(fps.elapsed()))
+    print("\nProgram Stopping:\n\telapsed time: {:.2f}".format(fps.elapsed()))
     print("\tapprox. FPS: {:.2f}".format(fps.fps()))
 
     # do the final cleanup before exiting
@@ -336,6 +340,7 @@ def PeopleCounter(cap, resolution, cnt_up=0, cnt_down=0):                       
     if args["video_write_on"] is True:
         video_rec.release()
         video_recP.release()
+        video_recM.release()
     cv2.destroyAllWindows()
 
 
@@ -399,13 +404,11 @@ if __name__ == '__main__':
         fourcc = cv2.VideoWriter_fourcc(*'MP4V')
         fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
         fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+
         video_recP = cv2.VideoWriter(args["file_recP"],
                                      fourcc, 20.0, (int(width), int(height)))
-
-        # Define the codec and create VideoWriter object
-        fourcc = cv2.VideoWriter_fourcc(*'MP4V')
-        fourcc = cv2.VideoWriter_fourcc('M', 'P', '4', 'V')
-        fourcc = cv2.VideoWriter_fourcc(*'a\0\0\0')
+        video_recM = cv2.VideoWriter(args["file_recM"],
+                                     fourcc, 20.0, (int(width), int(height)))
         video_rec = cv2.VideoWriter(args["file_rec"],
                                     fourcc, 20.0, (int(width), int(height)))
 

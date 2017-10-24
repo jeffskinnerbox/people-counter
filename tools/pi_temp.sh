@@ -4,6 +4,10 @@
 # Version:      0.4.1
 #
 # Purpose: Display the ARM CPU and GPU temperature of Raspberry Pi 2/3 
+#
+# DOCUMENTATION vcgencmd
+# https://elinux.org/RPI_vcgencmd_usage
+#
 
 
 cpu=$(</sys/class/thermal/thermal_zone0/temp)

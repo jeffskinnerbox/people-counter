@@ -58,6 +58,11 @@ def ArgParser(defaults):
                     action='store',
                     required=False,
                     default=defaults["path"] + '/' + defaults["file_recP"])
+    ap.add_argument("-q", "--file_recM",
+                    help="path to file where the processed video is stored",
+                    action='store',
+                    required=False,
+                    default=defaults["path"] + '/' + defaults["file_recM"])
     ap.add_argument("-r", "--file_rec",
                     help="path to file where the unprocessed camera \
                     video will be recorded",
