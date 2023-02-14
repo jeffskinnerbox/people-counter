@@ -4,6 +4,13 @@ Version:      0.4.0
 -->
 
 
+<div align="center">
+<img src="https://python-deprecated.readthedocs.io/en/latest/_images/logo-full.png" title="Deprecated is increasingly used as a technical term meaning 'to recommend against using something on the grounds that it is obsolete', or 'to declare some technological feature or function to be obsolescent'.  The earliest meaning of deprecate was 'to pray against, as an evil,' and soon after this first meaning it took on the additional sense 'to express disapproval of.' Meanwhile, depreciate, the closely related word with which it is often confused, means 'to lower in value.'" align="center">
+</div>
+
+
+----
+
 
 # Freeboard
 * Freeboard dashboard - https://freeboard.thingspace.io/board/Yx8HGW
